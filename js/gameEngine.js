@@ -1,19 +1,20 @@
 
 var myGamePiece;
 var myScore;
+var myAnt;
 
 function startGame() {
     myGamePiece = new component(30, 30, "red", 10, 120);
     myGamePiece.gravity = 0.05;
     myScore = new component("30px", "Consolas", "black", 280, 40, "text");
+    // create ant object
+    myAnt = new antObj();
     myGameArea.start();
 }
 
 var myGameArea = {
     canvas : document.getElementById("canvas"),
     start : function() {
-        // this.canvas.width = 480;
-        // this.canvas.height = 270;
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
         this.frameNo = 0;
@@ -21,6 +22,64 @@ var myGameArea = {
         },
     clear : function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+}
+
+function antObj(x, y, direction) {
+    this.x = Math.floor(Math.random()*450);
+    this.y = Math.floor(Math.random()*220);
+    var directions = ["NORTH", "SOUTH", "EAST", "WEST"];
+    this.direction = directions[Math.floor(Math.random()*4)];
+    // Directions can be polar
+
+    this.update = function() {
+        ctx = myGameArea.context;
+        ant_img = new Image();
+        ant_img.src = '../ant_imgs/ant3.png';
+
+        ctx.drawImage(ant_img, this.x, this.y, 50, 50);
+
+        // if(this.direction == "NORTH"){
+        //     ant_img.setAttribute('style', 'transorm:rotate(90deg)');
+        //     console.log('rotating');
+        // }
+        // Error: rotate image is causing flickering
+    };
+
+    this.newPos = function() {
+        if(this.direction == 'NORTH'){
+            this.y--;
+        } else if (this.direction == 'SOUTH'){
+            this.y++;
+        } else if (this.direction == 'EAST'){
+            this.x++;
+        } else if (this.direction == 'WEST'){
+            this.x--;
+        }
+
+        //check for hitting walls
+        this.hitWall();
+    }
+
+    this.hitWall = function() {
+        if(this.x <= 0) {
+            this.direction = 'EAST';
+        } else if(this.x >= 430) {
+            this.direction = 'WEST';
+        } else if(this.y <= 0) {
+            this.direction = 'SOUTH';
+        } else if (this.y >= 220) {
+            this.direction = 'NORTH';
+        }
+
+        this.ranDir();
+    }
+
+    this.ranDir = function() {
+        let threshold = 0.99;
+        if(Math.random() > threshold) {
+            this.direction = directions[Math.floor(Math.random()*4)];
+        }
     }
 }
 
@@ -93,6 +152,8 @@ function updateGameArea() {
     myScore.update();
     myGamePiece.newPos();
     myGamePiece.update();
+    myAnt.update();
+    myAnt.newPos();
 }
 
 function everyinterval(n) {
