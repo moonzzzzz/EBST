@@ -1,14 +1,20 @@
 
 var myGamePiece;
 var myScore;
-var myAnt;
+var myRiver;
+var myAnts = new Array();
+let numAnts = 100;
 
 function startGame() {
-    myGamePiece = new component(30, 30, "red", 10, 120);
+    myGamePiece = new river("blue");
     myGamePiece.gravity = 0.05;
-    myScore = new component("30px", "Consolas", "black", 280, 40, "text");
-    // create ant object
-    myAnt = new antObj();
+    // myScore = new component("30px", "Consolas", "black", 280, 40, "text");
+
+    // create ant objects
+    for(let i = 0; i < numAnts; i++){
+    myAnts[i] = new antObj();
+    }
+
     myGameArea.start();
 }
 
@@ -23,10 +29,11 @@ var myGameArea = {
     clear : function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
+
 }
 
 function antObj(x, y, direction) {
-    this.x = Math.floor(Math.random()*450);
+    this.x = 120 + Math.floor(Math.random()*340); // range = 120 - 450
     this.y = Math.floor(Math.random()*220);
     var directions = ["NORTH", "SOUTH", "EAST", "WEST"];
     this.direction = directions[Math.floor(Math.random()*4)];
@@ -35,16 +42,21 @@ function antObj(x, y, direction) {
     this.update = function() {
         ctx = myGameArea.context;
         ant_img = new Image();
-        ant_img.src = '../ant_imgs/ant3.png';
 
-        ctx.drawImage(ant_img, this.x, this.y, 50, 50);
+        // image direction will be relative to ants'
+        if(this.direction == "NORTH"){
+        ant_img.src = '../ant_imgs/antNorth.png';
+        } else if(this.direction == "SOUTH"){
+            ant_img.src = '../ant_imgs/antSouth.png';
+        } else if(this.direction == "EAST"){
+            ant_img.src = '../ant_imgs/antEast.png';
+        } else if(this.direction == "WEST"){
+            ant_img.src = '../ant_imgs/antWest.png';
+        }
 
-        // if(this.direction == "NORTH"){
-        //     ant_img.setAttribute('style', 'transorm:rotate(90deg)');
-        //     console.log('rotating');
-        // }
-        // Error: rotate image is causing flickering
-    };
+        ctx.drawImage(ant_img, this.x, this.y, 20, 20);
+
+    }
 
     this.newPos = function() {
         if(this.direction == 'NORTH'){
@@ -62,13 +74,18 @@ function antObj(x, y, direction) {
     }
 
     this.hitWall = function() {
-        if(this.x <= 0) {
-            this.direction = 'EAST';
-        } else if(this.x >= 430) {
+        if(this.x <= 120) {  // if it hits the river it goes either up or down
+            while (this.direction == 'WEST'){
+                this.direction = directions[Math.floor(Math.random()*4)];
+             }
+        }
+        if(this.x >= 460) {
             this.direction = 'WEST';
-        } else if(this.y <= 0) {
+        }
+        if(this.y <= 0) {
             this.direction = 'SOUTH';
-        } else if (this.y >= 220) {
+        }
+        if (this.y >= 250) {
             this.direction = 'NORTH';
         }
 
@@ -83,55 +100,11 @@ function antObj(x, y, direction) {
     }
 }
 
-function component(width, height, color, x, y, type) {
-    this.type = type;
-    this.score = 0;
-    this.width = width;
-    this.height = height;
-    this.speedX = 0;
-    this.speedY = 0;    
-    this.x = x;
-    this.y = y;
-    this.gravity = 0;
-    this.gravitySpeed = 0;
+function river(color) {
     this.update = function() {
         ctx = myGameArea.context;
-        if (this.type == "text") {
-            ctx.font = this.width + " " + this.height;
-            ctx.fillStyle = color;
-            ctx.fillText(this.text, this.x, this.y);
-        } else {
-            ctx.fillStyle = color;
-            ctx.fillRect(this.x, this.y, this.width, this.height);
-        }
-    }
-    this.newPos = function() {
-        this.gravitySpeed += this.gravity;
-        this.x += this.speedX;
-        this.y += this.speedY + this.gravitySpeed;
-        this.hitBottom();
-    }
-    this.hitBottom = function() {
-        var rockbottom = myGameArea.canvas.height - this.height;
-        if (this.y > rockbottom) {
-            this.y = rockbottom;
-            this.gravitySpeed = 0;
-        }
-    }
-    this.crashWith = function(otherobj) {
-        var myleft = this.x;
-        var myright = this.x + (this.width);
-        var mytop = this.y;
-        var mybottom = this.y + (this.height);
-        var otherleft = otherobj.x;
-        var otherright = otherobj.x + (otherobj.width);
-        var othertop = otherobj.y;
-        var otherbottom = otherobj.y + (otherobj.height);
-        var crash = true;
-        if ((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
-            crash = false;
-        }
-        return crash;
+        ctx.fillStyle = color;
+        ctx.fillRect(100, 0, 20, 270);
     }
 }
 
@@ -148,12 +121,15 @@ function updateGameArea() {
         maxGap = 200;
         gap = Math.floor(Math.random()*(maxGap-minGap+1)+minGap);
     }
-    myScore.text="SCORE: " + myGameArea.frameNo;
-    myScore.update();
-    myGamePiece.newPos();
+    // myScore.text="SCORE: " + myGameArea.frameNo;
+    // myScore.update();
+    // myGamePiece.newPos();
     myGamePiece.update();
-    myAnt.update();
-    myAnt.newPos();
+
+    for(let i = 0; i < numAnts; i++){
+        myAnts[i].update();
+        myAnts[i].newPos();
+    }
 }
 
 function everyinterval(n) {
@@ -161,6 +137,6 @@ function everyinterval(n) {
     return false;
 }
 
-function accelerate(n) {
-    myGamePiece.gravity = n;
-}
+// function accelerate(n) {
+//     myGamePiece.gravity = n;
+// }
