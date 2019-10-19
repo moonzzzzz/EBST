@@ -3,11 +3,11 @@ var myGamePiece;
 var myScore;
 var myRiver;
 var myAnts = new Array();
-let numAnts = 100;
+let numAnts = 1000;
 
 function startGame() {
     myGamePiece = new river("blue");
-    myGamePiece.gravity = 0.05;
+    //myGamePiece.gravity = 0.05; // Navid is this line needed?
     // myScore = new component("30px", "Consolas", "black", 280, 40, "text");
 
     // create ant objects
@@ -22,7 +22,7 @@ var myGameArea = {
     canvas : document.getElementById("canvas"),
     start : function() {
         this.context = this.canvas.getContext("2d");
-        document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+        //document.body.insertBefore(this.canvas, document.body.childNodes[0]); //Navid is this line needed?
         this.frameNo = 0;
         this.interval = setInterval(updateGameArea, 20);
         },
@@ -32,6 +32,8 @@ var myGameArea = {
 
 }
 
+// Navid: all the magic numbers should go out of the function
+// NAvid: try to take image sourcing out of this function
 function antObj(x, y, direction) {
     this.x = 120 + Math.floor(Math.random()*340); // range = 120 - 450
     this.y = Math.floor(Math.random()*220);
@@ -102,9 +104,9 @@ function antObj(x, y, direction) {
 
 function river(color) {
     this.update = function() {
-        ctx = myGameArea.context;
+        ctx = myGameArea.context; // Navid:context should be passed to th function
         ctx.fillStyle = color;
-        ctx.fillRect(100, 0, 20, 270);
+        ctx.fillRect(70, 0, 20, 270); //Navid: the values should come from config file similar to color
     }
 }
 
