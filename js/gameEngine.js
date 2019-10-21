@@ -20,10 +20,12 @@ let antMovementArea = {x: referenceLine, y: 0, width: myGameArea.canvas.width - 
 let randomMovementThreshold = 0.99;
 let antGeometry = {width: 20, height: 28};  // ant facing north - by inspection (ant_img.width) for now
 
-// myGraph{
-//     move:{extend: 0.1, climbOn: 0.9},
-//     extend:{climboff:0.1}
-// }
+let myGraph = {
+    connection1:{startAction: "MOVE", sensor: "EDGE", probability: 0.1, endAction: "EXTEND"},
+    connection2:{startAction: "MOVE", sensor: "EDGE", probability: 0.9, endAction: "CLIMB-ON"}
+};
+
+console.log(myGraph);
 
 function startGame() {
     myGamePiece = new river(riverGeometry, myGameArea.canvas.getContext('2d'));
@@ -97,7 +99,7 @@ function antObj(movementArea, antGeometry, threshold, ctx) {
     function getAntImage(direction) {
         let ant_img = new Image();
     
-        // image direction will be relative to ants'
+        // image direction will be relative to ants' (Don't understand)
         if(direction == "NORTH"){
             // refNorth = null;
             // if (refNorth == null){
