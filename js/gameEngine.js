@@ -30,15 +30,15 @@ function startGame() {
 
     // create ant objects
     for(let i = 0; i < numAnts; i++){
-    myAnts[i] = new antObj(myGameArea.canvas.getContext('2d'));
+    myAnts[i] = new antObj(antMovementArea, antGeometry, randomMovementThreshold, myGameArea.canvas.getContext('2d'));
     }
 
     myGameArea.start();
 }
 
-function antObj(ctx) {
-    this.x = antMovementArea.x + Math.floor(Math.random()*antMovementArea.width);
-    this.y = antMovementArea.y + Math.floor(Math.random()*antMovementArea.height);
+function antObj(movementArea, antGeometry, threshold, ctx) {
+    this.x = movementArea.x + Math.floor(Math.random()*movementArea.width);
+    this.y = movementArea.y + Math.floor(Math.random()*movementArea.height);
     var directions = ["NORTH", "SOUTH", "EAST", "WEST"];
     this.direction = directions[Math.floor(Math.random()*4)];
 
@@ -69,17 +69,17 @@ function antObj(ctx) {
                 this.direction = directions[Math.floor(Math.random()*4)];
              }
         }
-        if(this.x >= antMovementArea.width + antMovementArea.x - antGeometry.width) {
+        if(this.x >= movementArea.width + movementArea.x - antGeometry.width) {
             while (this.direction == 'EAST'){
                 this.direction = directions[Math.floor(Math.random()*4)];
              }
         }
-        if(this.y <= antMovementArea.y) {
+        if(this.y <= movementArea.y) {
             while (this.direction == 'NORTH'){
                 this.direction = directions[Math.floor(Math.random()*4)];
              }
         }
-        if (this.y >= antMovementArea.height + antMovementArea.y - antGeometry.width) {
+        if (this.y >= movementArea.height + movementArea.y - antGeometry.width) {
             while (this.direction == 'SOUTH'){
                 this.direction = directions[Math.floor(Math.random()*4)];
              }
@@ -89,7 +89,7 @@ function antObj(ctx) {
     }
 
     this.ranDir = function() {
-        if(Math.random() > randomMovementThreshold) {
+        if(Math.random() > threshold) {
             this.direction = directions[Math.floor(Math.random()*4)];
         }
     }
@@ -99,8 +99,8 @@ function antObj(ctx) {
     
         // image direction will be relative to ants'
         if(direction == "NORTH"){
-            // refNorth = Null;
-            // if (refNorth == Null){
+            // refNorth = null;
+            // if (refNorth == null){
             //     ant_img.src = '../ant_imgs/antNorth.png';
             //     // resize
             // }
