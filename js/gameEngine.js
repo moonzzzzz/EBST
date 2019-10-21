@@ -46,7 +46,6 @@ function antObj(ctx) {
         ant_img = getAntImage(this.direction);
 
         ctx.drawImage(ant_img, this.x, this.y);
-        // console.log(ant_img.width, ant_img.height);
     }
 
     this.newPos = function() {
@@ -70,14 +69,20 @@ function antObj(ctx) {
                 this.direction = directions[Math.floor(Math.random()*4)];
              }
         }
-        if(this.x >= antMovementArea.width + antMovementArea.x - antGeometry.height) {
-            this.direction = 'WEST';
+        if(this.x >= antMovementArea.width + antMovementArea.x - antGeometry.width) {
+            while (this.direction == 'EAST'){
+                this.direction = directions[Math.floor(Math.random()*4)];
+             }
         }
         if(this.y <= antMovementArea.y) {
-            this.direction = 'SOUTH';
+            while (this.direction == 'NORTH'){
+                this.direction = directions[Math.floor(Math.random()*4)];
+             }
         }
-        if (this.y >= antMovementArea.height + antMovementArea.y - antGeometry.height) {
-            this.direction = 'NORTH';
+        if (this.y >= antMovementArea.height + antMovementArea.y - antGeometry.width) {
+            while (this.direction == 'SOUTH'){
+                this.direction = directions[Math.floor(Math.random()*4)];
+             }
         }
 
         this.ranDir();
