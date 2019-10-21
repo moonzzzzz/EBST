@@ -24,21 +24,20 @@ let myGraph = {
     connection1:{startAction: "MOVE", sensor: "EDGE", probability: 0.1, endAction: "EXTEND"},
     connection2:{startAction: "MOVE", sensor: "EDGE", probability: 0.9, endAction: "CLIMB-ON"}
 };
-
-console.log(myGraph);
+// ToDO: this should be an array of graphs
 
 function startGame() {
     myGamePiece = new river(riverGeometry, myGameArea.canvas.getContext('2d'));
 
     // create ant objects
     for(let i = 0; i < numAnts; i++){
-    myAnts[i] = new antObj(antMovementArea, antGeometry, randomMovementThreshold, myGameArea.canvas.getContext('2d'));
+    myAnts[i] = new antObj(antMovementArea, antGeometry, randomMovementThreshold, myGameArea.canvas.getContext('2d'), myGraph);
     }
 
     myGameArea.start();
 }
 
-function antObj(movementArea, antGeometry, threshold, ctx) {
+function antObj(movementArea, antGeometry, threshold, ctx, graph) {
     this.x = movementArea.x + Math.floor(Math.random()*movementArea.width);
     this.y = movementArea.y + Math.floor(Math.random()*movementArea.height);
     var directions = ["NORTH", "SOUTH", "EAST", "WEST"];
@@ -46,7 +45,6 @@ function antObj(movementArea, antGeometry, threshold, ctx) {
 
     this.update = function() {
         ant_img = getAntImage(this.direction);
-
         ctx.drawImage(ant_img, this.x, this.y);
     }
 
@@ -61,16 +59,40 @@ function antObj(movementArea, antGeometry, threshold, ctx) {
             this.x--;
         }
 
-        //check for hitting walls
+        //check for hitting river/walls
+        this.hitRiver();
         this.hitWall();
     }
 
-    this.hitWall = function() {
-        if(this.x <= referenceLine) {  // if it hits the river it goes anywhere but WEST
+    this.hitRiver = function() {
+        
+
+        //examine graph
+        for(i=0; i<graph.length;  i++){
+            if(graph[i].startAction == "MOVE"){
+                console.log(1);
+            }
+        }
+
+        //Default
+        // if ant hits the river, default is to go anywhere but WEST
+        if(this.x <= referenceLine) {
             while (this.direction == 'WEST'){
                 this.direction = directions[Math.floor(Math.random()*4)];
              }
         }
+
+
+
+        // if connections include edge sensor
+        if(this.x <= referenceLine) {
+
+        }
+
+    }
+
+    this.hitWall = function() {
+        // when ant hits the wall, it simply changed direction
         if(this.x >= movementArea.width + movementArea.x - antGeometry.width) {
             while (this.direction == 'EAST'){
                 this.direction = directions[Math.floor(Math.random()*4)];
