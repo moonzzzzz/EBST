@@ -65,14 +65,14 @@ function antObj(movementArea, antGeometry, threshold, ctx, graph) {
     }
 
     this.hitRiver = function() {
-        
+        // work in
 
-        //examine graph
-        for(i=0; i<graph.length;  i++){
-            if(graph[i].startAction == "MOVE"){
-                console.log(1);
-            }
-        }
+        // //examine graph
+        // for(i=0; i<graph.length;  i++){
+        //     if(graph[i].startAction == "MOVE"){
+        //         console.log(1);
+        //     }
+        // }
 
         //Default
         // if ant hits the river, default is to go anywhere but WEST
@@ -84,10 +84,10 @@ function antObj(movementArea, antGeometry, threshold, ctx, graph) {
 
 
 
-        // if connections include edge sensor
-        if(this.x <= referenceLine) {
+        // // if connections include edge sensor
+        // if(this.x <= referenceLine) {
 
-        }
+        // } 
 
     }
 
