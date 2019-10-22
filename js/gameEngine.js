@@ -20,24 +20,35 @@ let antMovementArea = {x: referenceLine, y: 0, width: myGameArea.canvas.width - 
 let randomMovementThreshold = 0.99;
 let antGeometry = {width: 20, height: 28};  // ant facing north - by inspection (ant_img.width) for now
 
-let myGraph = {
-    connection1:{startAction: "MOVE", sensor: "EDGE", probability: 0.1, endAction: "EXTEND"},
-    connection2:{startAction: "MOVE", sensor: "EDGE", probability: 0.9, endAction: "CLIMB-ON"}
+// user input represented by a directed graph
+let actions = new Array("MOVE", "EXTEND", "CLIMB-ON");
+let connections = new Array(new Connection("MOVE", "EDGE", 0.1, "EXTEND"), new Connection("MOVE", "EDGE", 0.1, "CLIMB-ON"));
+
+let myGraph = {};
+
+function Connection (startAction, sensor, prob, endAction) {
+    this.startAction = startAction;
+    this.sensor = sensor;
+    this.prob = prob;
+    this.endAction = endAction;
 };
-// ToDO: this should be an array of graphs
+
+// // ToDo: add connection
+// myGraph.push(new Connection("MOVE", "EDGE", 0.1, "EXTEND"));
+// myGraph.push(new Connection("MOVE", "ANT-EXTENDING", 0.9, "CLIMB-ON"));
 
 function startGame() {
     myGamePiece = new river(riverGeometry, myGameArea.canvas.getContext('2d'));
 
     // create ant objects
     for(let i = 0; i < numAnts; i++){
-    myAnts[i] = new antObj(antMovementArea, antGeometry, randomMovementThreshold, myGameArea.canvas.getContext('2d'), myGraph);
+    myAnts[i] = new AntObj(antMovementArea, antGeometry, randomMovementThreshold, myGameArea.canvas.getContext('2d'), myGraph);
     }
 
     myGameArea.start();
 }
 
-function antObj(movementArea, antGeometry, threshold, ctx, graph) {
+function AntObj(movementArea, antGeometry, threshold, ctx, graph) {
     this.x = movementArea.x + Math.floor(Math.random()*movementArea.width);
     this.y = movementArea.y + Math.floor(Math.random()*movementArea.height);
     var directions = ["NORTH", "SOUTH", "EAST", "WEST"];
@@ -70,7 +81,7 @@ function antObj(movementArea, antGeometry, threshold, ctx, graph) {
         // //examine graph
         // for(i=0; i<graph.length;  i++){
         //     if(graph[i].startAction == "MOVE"){
-        //         console.log(1);
+        //         // console.log(1);
         //     }
         // }
 
