@@ -13,7 +13,7 @@ var myGameArea = {
 var myGamePiece;
 var myRiver;
 var myAnts = new Array();
-let numAnts = 100;
+let numAnts = 10;
 let riverGeometry = {x: 100, y: 0, width: 20, height: 270, color: "blue"};
 let referenceLine = riverGeometry.x + riverGeometry.width;  // Can I remove reference line because it is the same as antMovementArea.x ??
 let antMovementArea = {x: referenceLine, y: 0, width: myGameArea.canvas.width - referenceLine, height: myGameArea.canvas.height};
@@ -21,10 +21,9 @@ let randomMovementThreshold = 0.99;
 let antGeometry = {width: 20, height: 28};  // ant facing north - by inspection (ant_img.width) for now
 
 // user input represented by a directed graph
+let myGraph = {};
 let actions = new Array("MOVE", "EXTEND", "CLIMB-ON");
 let connections = new Array(new Connection("MOVE", "EDGE", 0.1, "EXTEND"), new Connection("MOVE", "EDGE", 0.1, "CLIMB-ON"));
-
-let myGraph = {};
 
 function Connection (startAction, sensor, prob, endAction) {
     this.startAction = startAction;
@@ -33,9 +32,7 @@ function Connection (startAction, sensor, prob, endAction) {
     this.endAction = endAction;
 };
 
-// // ToDo: add connection
-// myGraph.push(new Connection("MOVE", "EDGE", 0.1, "EXTEND"));
-// myGraph.push(new Connection("MOVE", "ANT-EXTENDING", 0.9, "CLIMB-ON"));
+// console.log(connections[1]);
 
 function startGame() {
     myGamePiece = new river(riverGeometry, myGameArea.canvas.getContext('2d'));
@@ -78,12 +75,19 @@ function AntObj(movementArea, antGeometry, threshold, ctx, graph) {
     this.hitRiver = function() {
         // work in
 
-        // //examine graph
-        // for(i=0; i<graph.length;  i++){
-        //     if(graph[i].startAction == "MOVE"){
-        //         // console.log(1);
-        //     }
-        // }
+        //examine graph: if ants are set to move
+        for(i=0; i<actions.length;  i++){
+            if(actions[i]== "MOVE"){
+                for(j=0; j<connections.length;  j++){
+                    // if edge sensor is connected to move
+                    if (connections[j].startAction == "MOVE" && connections[j].sensor == "EDGE"){
+                        if(this.x <= referenceLine && this.direction == "WEST") {
+                            console.log("hit edge");
+                        }
+                    }
+                }
+            }
+        }
 
         //Default
         // if ant hits the river, default is to go anywhere but WEST
