@@ -13,8 +13,8 @@ var myGameArea = {
 var myGamePiece;
 var myRiver;
 var myAnts = new Array();
-let numAnts = 10;
-let riverGeometry = {x: 100, y: 0, width: 20, height: 270, color: "blue"};
+let numAnts = 100;
+let riverGeometry = {x: 100, y: 0, width: 40, height: 270, color: "blue"};
 let referenceLine = riverGeometry.x + riverGeometry.width;  // Can I remove reference line because it is the same as antMovementArea.x ??
 let antMovementArea = {x: referenceLine, y: 0, width: myGameArea.canvas.width - referenceLine, height: myGameArea.canvas.height};
 let randomMovementThreshold = 0.99;
@@ -50,54 +50,65 @@ function AntObj(movementArea, antGeometry, threshold, ctx, graph) {
     this.y = movementArea.y + Math.floor(Math.random()*movementArea.height);
     var directions = ["NORTH", "SOUTH", "EAST", "WEST"];
     this.direction = directions[Math.floor(Math.random()*4)];
+    this.state = "MOVE";
 
     this.update = function() {
         ant_img = getAntImage(this.direction);
         ctx.drawImage(ant_img, this.x, this.y);
     }
 
-    this.newPos = function() {
-        if(this.direction == 'NORTH'){
-            this.y--;
-        } else if (this.direction == 'SOUTH'){
-            this.y++;
-        } else if (this.direction == 'EAST'){
-            this.x++;
-        } else if (this.direction == 'WEST'){
-            this.x--;
-        }
-
-        //check for hitting river/walls
-        this.hitRiver();
-        this.hitWall();
+        this.newPos = function() {
+            if (this.state == "MOVE"){
+                if(this.direction == 'NORTH'){
+                    this.y--;
+                } else if (this.direction == 'SOUTH'){
+                    this.y++;
+                } else if (this.direction == 'EAST'){
+                    this.x++;
+                } else if (this.direction == 'WEST'){
+                    this.x--;
+                }
+            
+                //check for hitting river/walls
+                this.hitRiver();
+                this.hitWall();
+            }
     }
 
     this.hitRiver = function() {
-        // work in
+        //Default
+        // if ant hits the river, default is to go anywhere but WEST
+        // if (this.state == "MOVE"){
+        //     if(this.x <= referenceLine) {
+        //         while (this.direction == 'WEST'){
+        //             this.direction = directions[Math.floor(Math.random()*4)];
+        //         }
+        //     }
+        // }
 
-        //examine graph: if ants are set to move
+        //examine graph:
         for(i=0; i<actions.length;  i++){
-            if(actions[i]== "MOVE"){
+            if(actions[i] == "MOVE"){    // if move present
                 for(j=0; j<connections.length;  j++){
-                    // if edge sensor is connected to move
-                    if (connections[j].startAction == "MOVE" && connections[j].sensor == "EDGE"){
-                        if(this.x <= referenceLine && this.direction == "WEST") {
-                            console.log("hit edge");
+                    if (connections[j].startAction == "MOVE" && connections[j].sensor == "EDGE"){   // if edge sensor is connected to move
+                        if(this.x <= referenceLine && this.direction == "WEST") {   // when ant hits wall
+                            // extend
+                            if (connections[j].endAction == "EXTEND") {
+                                this.direction = "WEST";
+                                this.state = "EXTEND";
+                                this.x = referenceLine - 10;
+                            }
+                        }
+                    } else {
+                        if(this.x <= referenceLine && this.state == "MOVE") {
+                            while (this.direction == 'WEST'){
+                                this.direction = directions[Math.floor(Math.random()*4)];
+                            }
                         }
                     }
                 }
             }
         }
-
-        //Default
-        // if ant hits the river, default is to go anywhere but WEST
-        if(this.x <= referenceLine) {
-            while (this.direction == 'WEST'){
-                this.direction = directions[Math.floor(Math.random()*4)];
-             }
-        }
-
-
 
         // // if connections include edge sensor
         // if(this.x <= referenceLine) {
