@@ -23,8 +23,8 @@ let antGeometry = {width: 20, height: 28};  // ant facing north - by inspection 
 // user input represented by a directed graph
 let myGraph = {};
 let actions = new Array("MOVE", "EXTEND", "CLIMB-ON");
-let connections = new Array( new Connection("MOVE", "EDGE", 0.1, "CLIMB-ON"));
-// let connections = new Array(new Connection("MOVE", "EDGE", 0.1, "EXTEND"), new Connection("MOVE", "EDGE", 0.1, "CLIMB-ON"));
+// let connections = new Array( new Connection("MOVE", "EDGE", 0.1, "CLIMB-ON"));
+let connections = new Array(new Connection("MOVE", "EDGE", 0.1, "EXTEND"), new Connection("MOVE", "EDGE", 0.1, "CLIMB-ON"));
 
 function Connection (startAction, sensor, prob, endAction) {
     this.startAction = startAction;
@@ -86,9 +86,15 @@ function AntObj(movementArea, antGeometry, threshold, ctx, graph) {
                         if(this.x <= referenceLine && this.direction == "WEST") {   // when ant hits wall
                             // extend
                             if (connections[j].endAction == "EXTEND") {
-                                this.direction = "WEST";
-                                this.state = "EXTEND";
-                                this.x = referenceLine - 10;
+                                if (Math.random() < connections[j].prob){   // probability functionality
+                                    this.direction = "WEST";
+                                    this.state = "EXTEND";
+                                    this.x = referenceLine - 5;
+                                } else {
+                                    while (this.direction == 'WEST'){
+                                        this.direction = directions[Math.floor(Math.random()*4)];
+                                    }
+                                }
                             }
                         }
                     }
