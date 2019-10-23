@@ -78,15 +78,14 @@ function AntObj(movementArea, antGeometry, threshold, ctx, graph) {
 
     this.hitRiver = function() {
 
-        //examine graph:
+        //examine graph for move-edge-extend
         for(i=0; i<actions.length;  i++){
             if(actions[i] == "MOVE"){    // if move present
                 for(j=0; j<connections.length;  j++){
                     if (connections[j].startAction == "MOVE" && connections[j].sensor == "EDGE"){   // if edge sensor is connected to move
                         if(this.x <= referenceLine && this.direction == "WEST") {   // when ant hits wall
-                            // extend
-                            if (connections[j].endAction == "EXTEND") {
-                                if (Math.random() < connections[j].prob){   // probability functionality
+                            if (connections[j].endAction == "EXTEND") { // if extend connected
+                                if (Math.random() < connections[j].prob){   // extend probability
                                     this.direction = "WEST";
                                     this.state = "EXTEND";
                                     this.x = referenceLine - 5;
