@@ -78,11 +78,34 @@ function AntObj(movementArea, antGeometry, threshold, ctx, graph) {
 
     this.hitRiver = function() {
 
+            // // examine graph for move-extend-climb on
+            // for(i=0; i<actions.length;  i++){
+            //     if(actions[i] == "MOVE"){    // if move present
+            //         for(j=0; j<connections.length;  j++){
+            //             if (connections[j].startAction == "MOVE" && connections[j].sensor == "EDGE" && connections[j].endAction == "CLIMB-ON"){   // if move-edge connection present in connections
+            //                 for (k=0; k<myAnts.length; k++){
+            //                     if(myAnts[k].state == "EXTEND" && this.x <= referenceLine && this.direction == "WEST" && (this.y >= myAnts[k].y - 2 && this.y <= myAnts[k].y + 2)) {   // when ant hits an extending ant
+            //                         myAnts[k].direction = "WEST";
+            //                         this.direction = "WEST";
+            //                         this.state = "CLIMB-ON";
+            //                         this.y = myAnts[k].y;
+            //                         this.x = myAnts[k].x - 5;
+            //                         console.log("CLIMB-ON");
+            //                     }
+            //                 }
+            //             }
+            //         }
+            //     }
+            // }
+
+            // // ToDo: ^^ bug, sometimes going in the wrong direction
+            // // ToDo: ^^ bug, create bridge array and add ants to it
+
         //examine graph for move-edge-extend
         for(i=0; i<actions.length;  i++){
-            if(actions[i] == "MOVE"){    // if move present
+            if(actions[i] == "MOVE"){    // if move present in actions
                 for(j=0; j<connections.length;  j++){
-                    if (connections[j].startAction == "MOVE" && connections[j].sensor == "EDGE"){   // if edge sensor is connected to move
+                    if (connections[j].startAction == "MOVE" && connections[j].sensor == "EDGE"){   // if move-edge connection present in connections
                         if(this.x <= referenceLine && this.direction == "WEST") {   // when ant hits wall
                             if (connections[j].endAction == "EXTEND") { // if extend connected
                                 if (Math.random() < connections[j].prob){   // extend probability
@@ -103,11 +126,9 @@ function AntObj(movementArea, antGeometry, threshold, ctx, graph) {
 
         //Default
         // if ant hits the river, default is to go anywhere but WEST
-        if (this.state == "MOVE"){
-            if(this.x <= referenceLine) {
-                while (this.direction == 'WEST'){
-                    this.direction = directions[Math.floor(Math.random()*4)];
-                }
+        if(this.x <= referenceLine && this.state == "MOVE") {
+            while (this.direction == 'WEST'){
+                this.direction = directions[Math.floor(Math.random()*4)];
             }
         }
 
