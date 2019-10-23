@@ -23,7 +23,8 @@ let antGeometry = {width: 20, height: 28};  // ant facing north - by inspection 
 // user input represented by a directed graph
 let myGraph = {};
 let actions = new Array("MOVE", "EXTEND", "CLIMB-ON");
-let connections = new Array(new Connection("MOVE", "EDGE", 0.1, "EXTEND"), new Connection("MOVE", "EDGE", 0.1, "CLIMB-ON"));
+let connections = new Array( new Connection("MOVE", "EDGE", 0.1, "CLIMB-ON"));
+// let connections = new Array(new Connection("MOVE", "EDGE", 0.1, "EXTEND"), new Connection("MOVE", "EDGE", 0.1, "CLIMB-ON"));
 
 function Connection (startAction, sensor, prob, endAction) {
     this.startAction = startAction;
@@ -76,15 +77,6 @@ function AntObj(movementArea, antGeometry, threshold, ctx, graph) {
     }
 
     this.hitRiver = function() {
-        //Default
-        // if ant hits the river, default is to go anywhere but WEST
-        // if (this.state == "MOVE"){
-        //     if(this.x <= referenceLine) {
-        //         while (this.direction == 'WEST'){
-        //             this.direction = directions[Math.floor(Math.random()*4)];
-        //         }
-        //     }
-        // }
 
         //examine graph:
         for(i=0; i<actions.length;  i++){
@@ -99,13 +91,17 @@ function AntObj(movementArea, antGeometry, threshold, ctx, graph) {
                                 this.x = referenceLine - 10;
                             }
                         }
-                    } else {
-                        if(this.x <= referenceLine && this.state == "MOVE") {
-                            while (this.direction == 'WEST'){
-                                this.direction = directions[Math.floor(Math.random()*4)];
-                            }
-                        }
                     }
+                }
+            }
+        }
+
+        //Default
+        // if ant hits the river, default is to go anywhere but WEST
+        if (this.state == "MOVE"){
+            if(this.x <= referenceLine) {
+                while (this.direction == 'WEST'){
+                    this.direction = directions[Math.floor(Math.random()*4)];
                 }
             }
         }
