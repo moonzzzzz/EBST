@@ -20,11 +20,12 @@ let antMovementArea = {x: referenceLine, y: 0, width: myGameArea.canvas.width - 
 let randomMovementThreshold = 0.99;
 let antGeometry = {width: 20, height: 28};  // ant facing north - by inspection (ant_img.width) for now
 
+// // Graph style 1
 // user input represented by a directed graph
 let myGraph = {};
 let actions = new Array("MOVE", "EXTEND", "CLIMB-ON");
 // let connections = new Array( new Connection("MOVE", "EDGE", 0.1, "CLIMB-ON"));
-let connections = new Array(new Connection("MOVE", "EDGE", 0.1, "EXTEND"), new Connection("MOVE", "EDGE", 0.1, "CLIMB-ON"));
+let connections = new Array(new Connection("MOVE", "EDGE", 0.1, "EXTEND"), new Connection("MOVE", "EDGE", 0.9, "CLIMB-ON"));
 
 function Connection (startAction, sensor, prob, endAction) {
     this.startAction = startAction;
@@ -33,7 +34,25 @@ function Connection (startAction, sensor, prob, endAction) {
     this.endAction = endAction;
 };
 
-// console.log(connections[1]);
+// // Graph style 2: create an array of objects for actions, with child sensors - also an array of objects
+let nodes = new Array(new Action("MOVE"), new Action("EDGE"), new Action("CLIMB_ON"));
+
+// add sensors
+nodes[1].sensors = new Array(new Sensor("EDGE", 0.1, nodes[1]), new Sensor("ANT_EXTENDING", 0.9, nodes[2]));
+
+function Action(name) {
+    this.name = name;
+}
+
+function Sensor(name, prob, endAction){
+    this.name = name;
+    this.prob = prob;
+    this.endAction = endAction;
+}
+
+for(i=0; i<nodes[1].sensors.length; i++){
+    console.log(nodes[1].sensors[i].prob);
+}
 
 function startGame() {
     myGamePiece = new river(riverGeometry, myGameArea.canvas.getContext('2d'));
