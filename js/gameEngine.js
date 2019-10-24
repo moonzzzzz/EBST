@@ -24,7 +24,7 @@ let antGeometry = {width: 20, height: 28};  // ant facing north - by inspection 
 let nodes = new Array(new Action("MOVE"), new Action("EDGE"), new Action("CLIMB_ON"));
 
 // add sensors
-// nodes[0].sensors = new Array(new Sensor("EDGE", 0.1, nodes[1]), new Sensor("ANT_EXTENDING", 0.9, nodes[2]));
+nodes[0].sensors = new Array(new Sensor("EDGE", 0.1, nodes[1]), new Sensor("ANT_EXTENDING", 0.9, nodes[2]));
 
 function Action(name) {
     this.name = name;
@@ -63,35 +63,60 @@ function AntObj(movementArea, antGeometry, threshold, ctx, nodes) {
         ctx.drawImage(ant_img, this.x, this.y);
     }
 
-        this.newPos = function() {
-            if (this.state.name == "MOVE"){
-                if(this.direction == 'NORTH'){
-                    this.y--;
-                } else if (this.direction == 'SOUTH'){
-                    this.y++;
-                } else if (this.direction == 'EAST'){
-                    this.x++;
-                } else if (this.direction == 'WEST'){
-                    this.x--;
-                }
-            
-                //check for hitting river/walls
-                this.hitWall();
+    this.newPos = function() {
+        if (this.state.name == "MOVE"){
+            if(this.direction == 'NORTH'){
+                this.y--;
+            } else if (this.direction == 'SOUTH'){
+                this.y++;
+            } else if (this.direction == 'EAST'){
+                this.x++;
+            } else if (this.direction == 'WEST'){
+                this.x--;
+            }
+        
+            //check for hitting river/walls
+            this.hitWall();
+            this.checkSensors();
+        }       
+    }
 
-                // must run through the sensors of this state and enact them
-                for(i=0; i<this.state.sensors.length; i++){
-                    if(this.state.sensors != undefined){
-                        // this.state.sensors[i];
-                    } else {
-                        // if no edge sensor, then run the hit river
-                        this.hitRiver();
-                    }
+    this.checkSensors = function() {
+        // check if any sensors are present
+        if(this.state.sensors == undefined){
+            this.hitRiver();    // default action
+        } else {
+            // must run through the sensors of this state and enact them
+            for(i=0; i<this.state.sensors.length; i++){
+                if(this.state.sensors[i] != undefined){
+                this.sense(this.state.sensors[i]);
                 }
             }
+        }
+    }
+
+    this.sense = function(sensor) {
+        if(sensor.name == "EDGE"){
+            // check for hitting edge
+            if(this.x <= referenceLine && Math.random() < sensor.prob) {
+                // now perform the next action
+                this.performAction();
+            }
+        } else if (sensor.name == "ANT_EXTENDING"){
+
+        } else if (sensor.name == "TIME"){
+
+        }
+    }
+
+    this.performAction = function() {
+        // ToDo: must first check what the next action is
+        // extend
+        this.x = referenceLine - 10;
+        this.state = "EXTEND";
     }
 
     this.hitRiver = function() {
-        //Default
         // if ant hits the river, default is to go anywhere but WEST
         if(this.x <= referenceLine && this.state.name == "MOVE") {
             while (this.direction == 'WEST'){
