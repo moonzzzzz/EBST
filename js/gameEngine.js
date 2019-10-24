@@ -24,7 +24,7 @@ let antGeometry = {width: 20, height: 28};  // ant facing north - by inspection 
 let nodes = new Array(new Action("MOVE"), new Action("EDGE"), new Action("CLIMB_ON"));
 
 // add sensors
-nodes[1].sensors = new Array(new Sensor("EDGE", 0.1, nodes[1]), new Sensor("ANT_EXTENDING", 0.9, nodes[2]));
+// nodes[0].sensors = new Array(new Sensor("EDGE", 0.1, nodes[1]), new Sensor("ANT_EXTENDING", 0.9, nodes[2]));
 
 function Action(name) {
     this.name = name;
@@ -56,7 +56,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, nodes) {
     this.y = movementArea.y + Math.floor(Math.random()*movementArea.height);
     var directions = ["NORTH", "SOUTH", "EAST", "WEST"];
     this.direction = directions[Math.floor(Math.random()*4)];
-    this.state = "MOVE";
+    this.state = nodes[0];
 
     this.update = function() {
         ant_img = getAntImage(this.direction);
@@ -64,7 +64,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, nodes) {
     }
 
         this.newPos = function() {
-            if (this.state == "MOVE"){
+            if (this.state.name == "MOVE"){
                 if(this.direction == 'NORTH'){
                     this.y--;
                 } else if (this.direction == 'SOUTH'){
@@ -76,28 +76,28 @@ function AntObj(movementArea, antGeometry, threshold, ctx, nodes) {
                 }
             
                 //check for hitting river/walls
-                this.hitRiver();
                 this.hitWall();
+
+                // must run through the sensors of this state and enact them
+                for(i=0; i<this.state.sensors.length; i++){
+                    if(this.state.sensors != undefined){
+                        // this.state.sensors[i];
+                    } else {
+                        // if no edge sensor, then run the hit river
+                        this.hitRiver();
+                    }
+                }
             }
     }
 
     this.hitRiver = function() {
-    
-        // Graph style 2
-
         //Default
         // if ant hits the river, default is to go anywhere but WEST
-        if(this.x <= referenceLine && this.state == "MOVE") {
+        if(this.x <= referenceLine && this.state.name == "MOVE") {
             while (this.direction == 'WEST'){
                 this.direction = directions[Math.floor(Math.random()*4)];
             }
         }
-
-        // // if connections include edge sensor
-        // if(this.x <= referenceLine) {
-
-        // } 
-
     }
 
     this.hitWall = function() {
