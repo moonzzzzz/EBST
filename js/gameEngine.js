@@ -20,20 +20,6 @@ let antMovementArea = {x: referenceLine, y: 0, width: myGameArea.canvas.width - 
 let randomMovementThreshold = 0.99;
 let antGeometry = {width: 20, height: 28};  // ant facing north - by inspection (ant_img.width) for now
 
-// // Graph style 1
-// user input represented by a directed graph
-let myGraph = {};
-let actions = new Array("MOVE", "EXTEND", "CLIMB-ON");
-// let connections = new Array( new Connection("MOVE", "EDGE", 0.1, "CLIMB-ON"));
-let connections = new Array(new Connection("MOVE", "EDGE", 0.1, "EXTEND"), new Connection("MOVE", "EDGE", 0.9, "CLIMB-ON"));
-
-function Connection (startAction, sensor, prob, endAction) {
-    this.startAction = startAction;
-    this.sensor = sensor;
-    this.prob = prob;
-    this.endAction = endAction;
-};
-
 // // Graph style 2: create an array of objects for actions, with child sensors - also an array of objects
 let nodes = new Array(new Action("MOVE"), new Action("EDGE"), new Action("CLIMB_ON"));
 
@@ -50,22 +36,22 @@ function Sensor(name, prob, endAction){
     this.endAction = endAction;
 }
 
-for(i=0; i<nodes[1].sensors.length; i++){
-    console.log(nodes[1].sensors[i].prob);
-}
+// for(i=0; i<nodes[1].sensors.length; i++){
+//     console.log(nodes[1].sensors[i].prob);
+// }
 
 function startGame() {
     myGamePiece = new river(riverGeometry, myGameArea.canvas.getContext('2d'));
 
     // create ant objects
     for(let i = 0; i < numAnts; i++){
-    myAnts[i] = new AntObj(antMovementArea, antGeometry, randomMovementThreshold, myGameArea.canvas.getContext('2d'), myGraph);
+    myAnts[i] = new AntObj(antMovementArea, antGeometry, randomMovementThreshold, myGameArea.canvas.getContext('2d'), nodes);
     }
 
     myGameArea.start();
 }
 
-function AntObj(movementArea, antGeometry, threshold, ctx, graph) {
+function AntObj(movementArea, antGeometry, threshold, ctx, nodes) {
     this.x = movementArea.x + Math.floor(Math.random()*movementArea.width);
     this.y = movementArea.y + Math.floor(Math.random()*movementArea.height);
     var directions = ["NORTH", "SOUTH", "EAST", "WEST"];
@@ -96,52 +82,8 @@ function AntObj(movementArea, antGeometry, threshold, ctx, graph) {
     }
 
     this.hitRiver = function() {
-
-            // // examine graph for move-extend-climb on
-            // for(i=0; i<actions.length;  i++){
-            //     if(actions[i] == "MOVE"){    // if move present
-            //         for(j=0; j<connections.length;  j++){
-            //             if (connections[j].startAction == "MOVE" && connections[j].sensor == "EDGE" && connections[j].endAction == "CLIMB-ON"){   // if move-edge connection present in connections
-            //                 for (k=0; k<myAnts.length; k++){
-            //                     if(myAnts[k].state == "EXTEND" && this.x <= referenceLine && this.direction == "WEST" && (this.y >= myAnts[k].y - 2 && this.y <= myAnts[k].y + 2)) {   // when ant hits an extending ant
-            //                         myAnts[k].direction = "WEST";
-            //                         this.direction = "WEST";
-            //                         this.state = "CLIMB-ON";
-            //                         this.y = myAnts[k].y;
-            //                         this.x = myAnts[k].x - 5;
-            //                         console.log("CLIMB-ON");
-            //                     }
-            //                 }
-            //             }
-            //         }
-            //     }
-            // }
-
-            // // ToDo: ^^ bug, sometimes going in the wrong direction
-            // // ToDo: ^^ bug, create bridge array and add ants to it
-
-        //examine graph for move-edge-extend
-        for(i=0; i<actions.length;  i++){
-            if(actions[i] == "MOVE"){    // if move present in actions
-                for(j=0; j<connections.length;  j++){
-                    if (connections[j].startAction == "MOVE" && connections[j].sensor == "EDGE"){   // if move-edge connection present in connections
-                        if(this.x <= referenceLine && this.direction == "WEST") {   // when ant hits wall
-                            if (connections[j].endAction == "EXTEND") { // if extend connected
-                                if (Math.random() < connections[j].prob){   // extend probability
-                                    this.direction = "WEST";
-                                    this.state = "EXTEND";
-                                    this.x = referenceLine - 5;
-                                } else {
-                                    while (this.direction == 'WEST'){
-                                        this.direction = directions[Math.floor(Math.random()*4)];
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    
+        // Graph style 2
 
         //Default
         // if ant hits the river, default is to go anywhere but WEST
