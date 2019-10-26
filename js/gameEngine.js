@@ -25,6 +25,9 @@ let nodes = new Array(new Action("MOVE"), new Action("EDGE"), new Action("CLIMB_
 
 // add sensors
 nodes[0].sensors = new Array(new Sensor("EDGE", 0.1, nodes[1]), new Sensor("ANT_EXTENDING", 0.9, nodes[2]));
+nodes[1].sensors = new Array();
+nodes[2].sensors = new Array();
+// nodes[3].sensors = new Array();
 
 function Action(name) {
     this.name = name;
@@ -62,21 +65,18 @@ function AntObj(movementArea, antGeometry, threshold, ctx, nodes) {
         ant_img = getAntImage(this.direction);
         ctx.drawImage(ant_img, this.x, this.y);
 
-        // if move action is present, then move
         if (this.state.name == "MOVE"){
             this.move();
         } else if(this.state.name == "EXTEND") {
-            // this.extend();
+            // do nothing but time sensor
         } else if(this.state.name == "CLIMB_ON") {
             // this.climbOn();
         } else {
-            // this.climbOff();
+            this.state.name = "MOVE";
         }
 
-        //check if walls/river is hit or a sensor has been activated
-        this.hitWall();
         this.checkSensors();
-    }
+    } 
 
     this.move = function() {
             if(this.direction == 'NORTH'){
@@ -88,10 +88,14 @@ function AntObj(movementArea, antGeometry, threshold, ctx, nodes) {
             } else if (this.direction == 'WEST'){
                 this.x--;
             }
+
+            //check if walls/river is hit or a sensor has been activated
+            this.hitWall();
     }
 
     this.extend = function() {
-
+        this.x = referenceLine - 10;
+        console.log(this.x);
     }
 
     this.climbOn = function() {
@@ -110,9 +114,9 @@ function AntObj(movementArea, antGeometry, threshold, ctx, nodes) {
             // must run through the sensors of this state and enact them
             for(i=0; i<this.state.sensors.length; i++){
                 if(this.state.sensors[i] != undefined){
-                this.sense(this.state.sensors[i]);
+                    this.sense(this.state.sensors[i]);
                 }
-            }
+             }
         }
     }
 
@@ -132,15 +136,15 @@ function AntObj(movementArea, antGeometry, threshold, ctx, nodes) {
 
     this.performAction = function(action) {
         // ToDo: must first check what the next action is
-        if(action == "EXTEND"){
-            this.state = "EXTEND";  // many bugs
-            this.x = referenceLine - 10;
+        if(action.name == "EXTEND"){
+            this.state = action;
+            console.log(action);
         } else if(action == "CLIMB_ON"){
 
         } else if(action == "CLIMB_OFF"){
             
         } else {
-            this.state = "MOVE";
+            this.state = action;
         }
     }
 
