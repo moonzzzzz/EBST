@@ -61,10 +61,24 @@ function AntObj(movementArea, antGeometry, threshold, ctx, nodes) {
     this.update = function() {
         ant_img = getAntImage(this.direction);
         ctx.drawImage(ant_img, this.x, this.y);
+
+        // if move action is present, then move
+        if (this.state.name == "MOVE"){
+            this.move();
+        } else if(this.state.name == "EXTEND") {
+            // this.extend();
+        } else if(this.state.name == "CLIMB_ON") {
+            // this.climbOn();
+        } else {
+            // this.climbOff();
+        }
+
+        //check if walls/river is hit or a sensor has been activated
+        this.hitWall();
+        this.checkSensors();
     }
 
-    this.newPos = function() {
-        if (this.state.name == "MOVE"){
+    this.move = function() {
             if(this.direction == 'NORTH'){
                 this.y--;
             } else if (this.direction == 'SOUTH'){
@@ -74,11 +88,18 @@ function AntObj(movementArea, antGeometry, threshold, ctx, nodes) {
             } else if (this.direction == 'WEST'){
                 this.x--;
             }
-        
-            //check for hitting river/walls
-            this.hitWall();
-            this.checkSensors();
-        }       
+    }
+
+    this.extend = function() {
+
+    }
+
+    this.climbOn = function() {
+
+    }
+
+    this.climbOff = function() {
+
     }
 
     this.checkSensors = function() {
@@ -100,7 +121,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, nodes) {
             // check for hitting edge
             if(this.x <= referenceLine && Math.random() < sensor.prob) {
                 // now perform the next action
-                this.performAction();
+                this.performAction(sensor.endAction);
             }
         } else if (sensor.name == "ANT_EXTENDING"){
 
@@ -109,11 +130,18 @@ function AntObj(movementArea, antGeometry, threshold, ctx, nodes) {
         }
     }
 
-    this.performAction = function() {
+    this.performAction = function(action) {
         // ToDo: must first check what the next action is
-        // extend
-        this.x = referenceLine - 10;
-        this.state = "EXTEND";
+        if(action == "EXTEND"){
+            this.state = "EXTEND";  // many bugs
+            this.x = referenceLine - 10;
+        } else if(action == "CLIMB_ON"){
+
+        } else if(action == "CLIMB_OFF"){
+            
+        } else {
+            this.state = "MOVE";
+        }
     }
 
     this.hitRiver = function() {
@@ -202,7 +230,6 @@ function updateGameArea() {
 
     for(let i = 0; i < numAnts; i++){
         myAnts[i].update();
-        myAnts[i].newPos();
     }
 }
 
