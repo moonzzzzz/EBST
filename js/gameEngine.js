@@ -20,33 +20,17 @@ let antMovementArea = {x: referenceLine, y: 0, width: myGameArea.canvas.width - 
 let randomMovementThreshold = 0.99;
 let antGeometry = {width: 20, height: 28};  // ant facing north - by inspection (ant_img.width) for now
 
-// // Graph style 2: create an array of objects for actions, with child sensors - also an array of objects
-let nodes = new Array(new Action("MOVE"), new Action("EDGE"), new Action("CLIMB_ON"));
-
-// add sensors
-nodes[0].sensors = new Array(new Sensor("EDGE", [0.1, 0,2], [nodes[1], nodes[2]]), new Sensor("ANT_EXTENDING", 0.9, nodes[2]));
-var move_action = {"sensors": [1, 3, 4]}
-
-var sensors =  [{}, {}, {"id":3, "type": "EDGE", "probabilities": [0.2, 0.3, 0.5], "actions":[EDGE, extend, move_action]}, {}  ]
-
-// nodes[1].sensors = new Array();
-// nodes[2].sensors = new Array();
-// nodes[3].sensors = new Array();
-
-function Action(name) {
-    this.name = name;
-    this.sensors = new Array();
+// // Graph: create an array of objects for actions, with child sensors - also an array of objects
+let myModel = {
+    move:{"sensors": [s1, s2, s4]},
+    extend:{ "sensors": [s1, s3, s2]},
+    climb_on:{"sensors": [s4, s3, s4]}, 
+    climb_off:{ "sensors": [s1, s5, s4]},  
+    sensors:{
+    s1:{"type": "EDGE", probs:[.1, .9], actions:[extend, move]},
+    s2:{"type": "ANT_EXTENDING", probs:[.9, .1], actions:[climb_on, move]},
+    }
 }
-
-function Sensor(name, prob, endAction){
-    this.name = name;
-    this.prob = prob;
-    this.endAction = endAction;
-}
-
-// for(i=0; i<nodes[1].sensors.length; i++){
-//     console.log(nodes[1].sensors[i].prob);
-// }
 
 function startGame() {
     myGamePiece = new river(riverGeometry, myGameArea.canvas.getContext('2d'));
