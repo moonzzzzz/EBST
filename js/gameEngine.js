@@ -22,25 +22,31 @@ let antGeometry = {width: 20, height: 28};  // ant facing north - by inspection 
 
 // // Graph: create an array of objects for actions, with child sensors - also an array of objects
 let actions = {
-    move:{"sensors": [1, 2]},
+    move:{"sensors": [0, 1]},
     extend:{ "sensors": []},
     climb_on:{"sensors": []}, 
     climb_off:{ "sensors": []},  
 }
 
-let sensors = {
-    s1:{"id": 1, "type": "EDGE", probs:[.1, .9], actions:[actions.extend, actions.move]},
-    s2:{"id": 2, "type": "ANT_EXTENDING", probs:[.9, .1], actions:[actions.climb_on, actions.move]},
-}
+let sensors = [{"id": 0, type: "EDGE", probs:[.1, .9], actions:[actions.extend, actions.move]},
+    {"id": 1, type: "ANT_EXTENDING", probs:[.9, .1], actions:[actions.climb_on, actions.move]}
+]
 
 let priorities = ["ANT_EXTENDING", "EDGE", "TIME"];
+
+function getActionSensor(index){
+    number = sensors.findIndex(x => x.id === index);
+    return sensors[number];
+}
+
+// console.log(getActionSensor(1));
 
 function startGame() {
     myGamePiece = new river(riverGeometry, myGameArea.canvas.getContext('2d'));
 
     // create ant objects
     for(let i = 0; i < numAnts; i++){
-    myAnts[i] = new AntObj(antMovementArea, antGeometry, randomMovementThreshold, myGameArea.canvas.getContext('2d'), actions, sensors);
+    myAnts[i] = new AntObj(antMovementArea, antGeometry, randomMovementThreshold, myGameArea.canvas.getContext('2d'), actions, sensors, priorities);
     }
 
     myGameArea.start();
@@ -52,6 +58,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, sensors, pri
     var directions = ["NORTH", "SOUTH", "EAST", "WEST"];
     this.direction = directions[Math.floor(Math.random()*4)];
     this.state = actions.move;
+    let currentSensor;      // will be used in loopSensors
 
     this.getState = function() {
         return this.state;
@@ -109,13 +116,19 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, sensors, pri
         if(this.state.sensors.length == 0){
             this.hitRiver();    // default action
         } else {
-            console.log(this.state.sensors);
-            // // must run through the sensors of this state and enact them
-            // for(i=0; i<this.state.sensors.length; i++){
-            //     if(this.state.sensors[i] != undefined && this.state.sensors[i].endAction.name != undefined){
-            //         this.sense(this.state.sensors[i]);
-            //     }
-            //  }
+            // must run through the sensors of this state and enact them
+            for(i=0; i<this.state.sensors.length; i++){
+                for(j=0; j<priorities.length; j++){
+                    currentSensor = getActionSensor(this.state.sensors[i]);
+                    if(currentSensor.type == priorities[j]){
+                        console.log("success")
+                    } else {
+                        console.log("failure");
+                    }
+                    // console.log(this.state.sensors[i]);
+                    // console.log(this.state.sensors, priorities[j], "");
+                }
+             }
         }
     }
 
