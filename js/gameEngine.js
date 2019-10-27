@@ -24,13 +24,18 @@ let antGeometry = {width: 20, height: 28};  // ant facing north - by inspection 
 let nodes = new Array(new Action("MOVE"), new Action("EDGE"), new Action("CLIMB_ON"));
 
 // add sensors
-nodes[0].sensors = new Array(new Sensor("EDGE", 0.1, nodes[1]), new Sensor("ANT_EXTENDING", 0.9, nodes[2]));
-nodes[1].sensors = new Array();
-nodes[2].sensors = new Array();
+nodes[0].sensors = new Array(new Sensor("EDGE", [0.1, 0,2], [nodes[1], nodes[2]]), new Sensor("ANT_EXTENDING", 0.9, nodes[2]));
+var move_action = {"sensors": [1, 3, 4]}
+
+var sensors =  [{}, {}, {"id":3, "type": "EDGE", "probabilities": [0.2, 0.3, 0.5], "actions":[EDGE, extend, move_action]}, {}  ]
+
+// nodes[1].sensors = new Array();
+// nodes[2].sensors = new Array();
 // nodes[3].sensors = new Array();
 
 function Action(name) {
     this.name = name;
+    this.sensors = new Array();
 }
 
 function Sensor(name, prob, endAction){
@@ -68,7 +73,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, nodes) {
         if (this.state.name == "MOVE"){
             this.move();
         } else if(this.state.name == "EXTEND") {
-            // do nothing but time sensor
+            this.extend;
         } else if(this.state.name == "CLIMB_ON") {
             // this.climbOn();
         } else {
@@ -113,7 +118,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, nodes) {
         } else {
             // must run through the sensors of this state and enact them
             for(i=0; i<this.state.sensors.length; i++){
-                if(this.state.sensors[i] != undefined){
+                if(this.state.sensors[i] != undefined && this.state.sensors[i].endAction.name != undefined){
                     this.sense(this.state.sensors[i]);
                 }
              }
@@ -121,11 +126,12 @@ function AntObj(movementArea, antGeometry, threshold, ctx, nodes) {
     }
 
     this.sense = function(sensor) {
-        if(sensor.name == "EDGE"){
+        if(sensor.name == "EDGE" && Math.random() < sensor.prob){
             // check for hitting edge
-            if(this.x <= referenceLine && Math.random() < sensor.prob) {
+            if(this.x <= referenceLine) {
                 // now perform the next action
                 this.performAction(sensor.endAction);
+                console.log(sensor.endAction);
             }
         } else if (sensor.name == "ANT_EXTENDING"){
 
@@ -136,16 +142,42 @@ function AntObj(movementArea, antGeometry, threshold, ctx, nodes) {
 
     this.performAction = function(action) {
         // ToDo: must first check what the next action is
+        console.log(action.name);
         if(action.name == "EXTEND"){
-            this.state = action;
-            console.log(action);
-        } else if(action == "CLIMB_ON"){
+            this.state = "EXTEND";
+            // console.log(action);
+        } else if(action.name == "CLIMB_ON"){
 
-        } else if(action == "CLIMB_OFF"){
+        } else if(action.name == "CLIMB_OFF"){
             
         } else {
             this.state = action;
         }
+    }
+
+    this.navid = function() {
+        // ANT STATE
+        // every ant has a state - always starts in the move state
+        // get the current state
+
+        // \/\/ decide on next state \/\/
+
+        // LOOP SENSORS
+        // loop through the sensors of that state (based on priorities)
+        //      (inside loop) if sensor is applicable, 
+        //          follow the sensor
+        //      if non-applicable,
+        //          go to next priority
+        
+        // FOLLOWING THE SENSOR -> JUNCTION (CHOOSE WHICH WAY TO GO)
+        // generate a random number
+        // based on the random number, change the current state to the next state
+
+        // ACTING
+        // act on the next state
+        // set the current state to the next state
+
+        // Notes: one function to determine the state, and another function to update its position
     }
 
     this.hitRiver = function() {
