@@ -61,6 +61,16 @@ function AntObj(movementArea, antGeometry, threshold, ctx, nodes) {
     this.direction = directions[Math.floor(Math.random()*4)];
     this.state = nodes[0];
 
+
+    this.navid = function(){
+        // check wall
+        // act on hit wall
+        // check river
+        // act on hit river: stop at river, extend bridge, ignore
+        // on bridge
+        // act on, on bridge
+    }
+
     this.update = function() {
         ant_img = getAntImage(this.direction);
         ctx.drawImage(ant_img, this.x, this.y);
@@ -75,7 +85,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, nodes) {
             this.state.name = "MOVE";
         }
 
-        this.checkSensors();
+        this.checkSensors(); // Navid: do you get ready for the next round?, I suggest every round decides for itself. Unless you have a reason based on experience
     } 
 
     this.move = function() {
