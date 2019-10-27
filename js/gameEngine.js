@@ -33,6 +33,8 @@ let sensors = {
     s2:{"id": 2, "type": "ANT_EXTENDING", probs:[.9, .1], actions:[actions.climb_on, actions.move]},
 }
 
+let priorities = ["ANT_EXTENDING", "EDGE", "TIME"];
+
 function startGame() {
     myGamePiece = new river(riverGeometry, myGameArea.canvas.getContext('2d'));
 
@@ -44,12 +46,16 @@ function startGame() {
     myGameArea.start();
 }
 
-function AntObj(movementArea, antGeometry, threshold, ctx, actions, sensors) {
+function AntObj(movementArea, antGeometry, threshold, ctx, actions, sensors, priorities) {
     this.x = movementArea.x + Math.floor(Math.random()*movementArea.width);
     this.y = movementArea.y + Math.floor(Math.random()*movementArea.height);
     var directions = ["NORTH", "SOUTH", "EAST", "WEST"];
     this.direction = directions[Math.floor(Math.random()*4)];
     this.state = actions.move;
+
+    this.getState = function() {
+        return this.state;
+    }
 
     this.update = function() {
         ant_img = getAntImage(this.direction);
@@ -67,7 +73,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, sensors) {
 
         this.move();
 
-        // this.checkSensors();
+        this.loopSensors();
     } 
 
     this.move = function() {
@@ -85,62 +91,63 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, sensors) {
             this.hitWall();
     }
 
-    this.extend = function() {
-        this.x = referenceLine - 10;
-        console.log(this.x);
-    }
+    // this.extend = function() {
+    //     this.x = referenceLine - 10;
+    //     console.log(this.x);
+    // }
 
-    this.climbOn = function() {
+    // this.climbOn = function() {
 
-    }
+    // }
 
-    this.climbOff = function() {
+    // this.climbOff = function() {
 
-    }
+    // }
 
-    this.checkSensors = function() {
+    this.loopSensors = function() {
         // check if any sensors are present
-        if(this.state.sensors == undefined){
+        if(this.state.sensors.length == 0){
             this.hitRiver();    // default action
         } else {
-            // must run through the sensors of this state and enact them
-            for(i=0; i<this.state.sensors.length; i++){
-                if(this.state.sensors[i] != undefined && this.state.sensors[i].endAction.name != undefined){
-                    this.sense(this.state.sensors[i]);
-                }
-             }
+            console.log(this.state.sensors);
+            // // must run through the sensors of this state and enact them
+            // for(i=0; i<this.state.sensors.length; i++){
+            //     if(this.state.sensors[i] != undefined && this.state.sensors[i].endAction.name != undefined){
+            //         this.sense(this.state.sensors[i]);
+            //     }
+            //  }
         }
     }
 
-    this.sense = function(sensor) {
-        if(sensor.name == "EDGE" && Math.random() < sensor.prob){
-            // check for hitting edge
-            if(this.x <= referenceLine) {
-                // now perform the next action
-                this.performAction(sensor.endAction);
-                console.log(sensor.endAction);
-            }
-        } else if (sensor.name == "ANT_EXTENDING"){
+    // this.sense = function(sensor) {
+    //     if(sensor.name == "EDGE" && Math.random() < sensor.prob){
+    //         // check for hitting edge
+    //         if(this.x <= referenceLine) {
+    //             // now perform the next action
+    //             this.performAction(sensor.endAction);
+    //             console.log(sensor.endAction);
+    //         }
+    //     } else if (sensor.name == "ANT_EXTENDING"){
 
-        } else if (sensor.name == "TIME"){
+    //     } else if (sensor.name == "TIME"){
 
-        }
-    }
+    //     }
+    // }
 
-    this.performAction = function(action) {
-        // ToDo: must first check what the next action is
-        console.log(action.name);
-        if(action.name == "EXTEND"){
-            this.state = "EXTEND";
-            // console.log(action);
-        } else if(action.name == "CLIMB_ON"){
+    // this.performAction = function(action) {
+    //     // ToDo: must first check what the next action is
+    //     console.log(action.name);
+    //     if(action.name == "EXTEND"){
+    //         this.state = "EXTEND";
+    //         // console.log(action);
+    //     } else if(action.name == "CLIMB_ON"){
 
-        } else if(action.name == "CLIMB_OFF"){
+    //     } else if(action.name == "CLIMB_OFF"){
             
-        } else {
-            this.state = action;
-        }
-    }
+    //     } else {
+    //         this.state = action;
+    //     }
+    // }
 
     this.navid = function() {
         // ANT STATE
