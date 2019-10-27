@@ -21,15 +21,16 @@ let randomMovementThreshold = 0.99;
 let antGeometry = {width: 20, height: 28};  // ant facing north - by inspection (ant_img.width) for now
 
 // // Graph: create an array of objects for actions, with child sensors - also an array of objects
-let myModel = {
-    move:{"sensors": [s1, s2, s4]},
-    extend:{ "sensors": [s1, s3, s2]},
-    climb_on:{"sensors": [s4, s3, s4]}, 
-    climb_off:{ "sensors": [s1, s5, s4]},  
-    sensors:{
-    s1:{"type": "EDGE", probs:[.1, .9], actions:[extend, move]},
-    s2:{"type": "ANT_EXTENDING", probs:[.9, .1], actions:[climb_on, move]},
-    }
+let actions = {
+    move:{"sensors": [1, 2]},
+    extend:{ "sensors": []},
+    climb_on:{"sensors": []}, 
+    climb_off:{ "sensors": []},  
+}
+
+let sensors = {
+    s1:{"id": 1, "type": "EDGE", probs:[.1, .9], actions:[actions.extend, actions.move]},
+    s2:{"id": 2, "type": "ANT_EXTENDING", probs:[.9, .1], actions:[actions.climb_on, actions.move]},
 }
 
 function startGame() {
@@ -37,34 +38,36 @@ function startGame() {
 
     // create ant objects
     for(let i = 0; i < numAnts; i++){
-    myAnts[i] = new AntObj(antMovementArea, antGeometry, randomMovementThreshold, myGameArea.canvas.getContext('2d'), nodes);
+    myAnts[i] = new AntObj(antMovementArea, antGeometry, randomMovementThreshold, myGameArea.canvas.getContext('2d'), actions, sensors);
     }
 
     myGameArea.start();
 }
 
-function AntObj(movementArea, antGeometry, threshold, ctx, nodes) {
+function AntObj(movementArea, antGeometry, threshold, ctx, actions, sensors) {
     this.x = movementArea.x + Math.floor(Math.random()*movementArea.width);
     this.y = movementArea.y + Math.floor(Math.random()*movementArea.height);
     var directions = ["NORTH", "SOUTH", "EAST", "WEST"];
     this.direction = directions[Math.floor(Math.random()*4)];
-    this.state = nodes[0];
+    this.state = actions.move;
 
     this.update = function() {
         ant_img = getAntImage(this.direction);
         ctx.drawImage(ant_img, this.x, this.y);
 
-        if (this.state.name == "MOVE"){
-            this.move();
-        } else if(this.state.name == "EXTEND") {
-            this.extend;
-        } else if(this.state.name == "CLIMB_ON") {
-            // this.climbOn();
-        } else {
-            this.state.name = "MOVE";
-        }
+        // if (this.state.name == "MOVE"){
+        //     this.move();
+        // } else if(this.state.name == "EXTEND") {
+        //     this.extend;
+        // } else if(this.state.name == "CLIMB_ON") {
+        //     // this.climbOn();
+        // } else {
+        //     this.state.name = "MOVE";
+        // }
 
-        this.checkSensors();
+        this.move();
+
+        // this.checkSensors();
     } 
 
     this.move = function() {
