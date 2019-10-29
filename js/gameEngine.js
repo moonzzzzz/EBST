@@ -113,25 +113,20 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
     // }
 
     this.loopSensors = function() {
-        // check if any sensors are present
-        if(this.state.sensors.length == 0){
-            this.hitRiver();    // default action
-        } else {
-            // must run through the sensors and priorities attached to this action
-            for(i=0; i<this.state.sensors.length; i++){
-                for(j=0; j<priorities.length; j++){
-                    currentSensor = getActionSensor(this.state.sensors[i]);
-                    // console.log(currentSensor);
-                    if(currentSensor.type == priorities[j]){
-                        this.checkSensor(currentSensor);
-                    } else {
-                        // ToDo: go to the next priority
+        // must run through the sensors and priorities attached to this action
+        for(i=0; i<this.state.sensors.length; i++){
+            for(j=0; j<priorities.length; j++){
+                currentSensor = getActionSensor(this.state.sensors[i]);
+                // console.log(currentSensor);
+                if(currentSensor.type == priorities[j]){
+                    this.checkSensor(currentSensor);
+                } else {
+                    // ToDo: go to the next priority
 
-                    }
-                    // console.log(this.state.sensors[i]);
-                    // console.log(this.state.sensors, priorities[j], "");
                 }
-             }
+                // console.log(this.state.sensors[i]);
+                // console.log(this.state.sensors, priorities[j], "");
+            }
         }
     }
 
@@ -156,15 +151,22 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
             if(random < cummulative){
                 // perform action in position k
                 // console.log(random, cummulative, sensor.actions[k]);
-                this.performAction(sensor.actions[k].name);
+                this.performAction(sensor.actions[k]);
+                // console.log(sensor.actions[k]);
             }
+            // ToDo - bug: what if comtinuing to move requires a change in direction???
         }
     }
 
     this.performAction = function(action) {
-        console.log("EXTEND");
-        this.x = referenceLine - 10;
-        this.state = actions.extend;
+        if (action.name == "MOVE") {
+            this.hitRiver();
+            // console.log("RIVER");
+        } else if(action.name == "EXTEND"){
+            // console.log("EXTEND"); 
+            this.x = referenceLine - 10;
+        }
+        this.state = action;
     //     // ToDo: must first check what the next action is
     //     console.log(action.name);
     //     if(action.name == "EXTEND"){
@@ -206,11 +208,10 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
 
     this.hitRiver = function() {
         // if ant hits the river, default is to go anywhere but WEST
-        if(this.x <= referenceLine && this.state.name == "MOVE") {
-            while (this.direction == 'WEST'){
+            while (this.direction == "WEST"){
                 this.direction = directions[Math.floor(Math.random()*4)];
             }
-        }
+            // console.log(this.direction);
     }
 
     this.hitWall = function() {
