@@ -116,14 +116,16 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, sensors, pri
         if(this.state.sensors.length == 0){
             this.hitRiver();    // default action
         } else {
-            // must run through the sensors of this state and enact them
+            // must run through the sensors and priorities attached to this action
             for(i=0; i<this.state.sensors.length; i++){
                 for(j=0; j<priorities.length; j++){
                     currentSensor = getActionSensor(this.state.sensors[i]);
+                    // console.log(currentSensor);
                     if(currentSensor.type == priorities[j]){
-                        console.log("success")
+                        this.checkSensor(currentSensor);
                     } else {
-                        console.log("failure");
+                        // ToDo: go to the next priority
+
                     }
                     // console.log(this.state.sensors[i]);
                     // console.log(this.state.sensors, priorities[j], "");
@@ -132,20 +134,34 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, sensors, pri
         }
     }
 
-    // this.sense = function(sensor) {
-    //     if(sensor.name == "EDGE" && Math.random() < sensor.prob){
-    //         // check for hitting edge
-    //         if(this.x <= referenceLine) {
-    //             // now perform the next action
-    //             this.performAction(sensor.endAction);
-    //             console.log(sensor.endAction);
-    //         }
-    //     } else if (sensor.name == "ANT_EXTENDING"){
+    // at the sensor junction
+    this.checkSensor = function(sensor) {
+        // if EDGE sensor, then sense if the ant is on the river's edge
+        if(sensor.type == "EDGE" && this.x == referenceLine){
+            console.log("Edge hit");
+        }
 
-    //     } else if (sensor.name == "TIME"){
+        // generate a random number
+        // random = Math.random();
 
-    //     }
-    // }
+        // loop through juction possibilities
+        // for(k=0; k<sensor.actions.length; k++){
+        //     console.log(sensor);
+        // }
+
+        //     if(sensor.name == "EDGE" && Math.random() < sensor.prob){
+        //         // check for hitting edge
+        //         if(this.x <= referenceLine) {
+        //             // now perform the next action
+        //             this.performAction(sensor.endAction);
+        //             console.log(sensor.endAction);
+        //         }
+        //     } else if (sensor.name == "ANT_EXTENDING"){
+
+        //     } else if (sensor.name == "TIME"){
+
+        //     }
+    }
 
     // this.performAction = function(action) {
     //     // ToDo: must first check what the next action is
