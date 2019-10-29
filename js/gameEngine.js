@@ -138,29 +138,16 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, sensors, pri
     this.checkSensor = function(sensor) {
         // if EDGE sensor, then sense if the ant is on the river's edge
         if(sensor.type == "EDGE" && this.x == referenceLine){
-            console.log("Edge hit");
+            this.junction("EDGE");
+        } else if (sensor.type == "ANT_EXTENDING"){
+            // check: go through all ants that are extending
+        } else if(sensor.type == "TIME"){
+            // check if time is up
         }
+    }
 
-        // generate a random number
-        // random = Math.random();
+    this.junction = function(sensor, type){
 
-        // loop through juction possibilities
-        // for(k=0; k<sensor.actions.length; k++){
-        //     console.log(sensor);
-        // }
-
-        //     if(sensor.name == "EDGE" && Math.random() < sensor.prob){
-        //         // check for hitting edge
-        //         if(this.x <= referenceLine) {
-        //             // now perform the next action
-        //             this.performAction(sensor.endAction);
-        //             console.log(sensor.endAction);
-        //         }
-        //     } else if (sensor.name == "ANT_EXTENDING"){
-
-        //     } else if (sensor.name == "TIME"){
-
-        //     }
     }
 
     // this.performAction = function(action) {
