@@ -22,10 +22,10 @@ let antGeometry = {width: 20, height: 28};  // ant facing north - by inspection 
 
 // // Graph: create an array of objects for actions, with child sensors - also an array of objects
 let actions = {
-    move:{"sensors": [0, 1]},
-    extend:{ "sensors": []},
-    climb_on:{"sensors": []}, 
-    climb_off:{ "sensors": []},  
+    move:{name: "MOVE", "sensors": [0, 1]},
+    extend:{name: "EXTEND", "sensors": []},
+    climb_on:{name: "CLIMB_ON", "sensors": []}, 
+    climb_off:{name: "CLIMB_OFF", "sensors": []},  
 }
 
 let sensors = [{"id": 0, type: "EDGE", probs:[.1, .9], actions:[actions.extend, actions.move]},
@@ -46,19 +46,20 @@ function startGame() {
 
     // create ant objects
     for(let i = 0; i < numAnts; i++){
-    myAnts[i] = new AntObj(antMovementArea, antGeometry, randomMovementThreshold, myGameArea.canvas.getContext('2d'), actions, sensors, priorities);
+    myAnts[i] = new AntObj(antMovementArea, antGeometry, randomMovementThreshold, myGameArea.canvas.getContext('2d'), actions, priorities);
     }
 
     myGameArea.start();
 }
 
-function AntObj(movementArea, antGeometry, threshold, ctx, actions, sensors, priorities) {
+function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) {
     this.x = movementArea.x + Math.floor(Math.random()*movementArea.width);
     this.y = movementArea.y + Math.floor(Math.random()*movementArea.height);
     var directions = ["NORTH", "SOUTH", "EAST", "WEST"];
     this.direction = directions[Math.floor(Math.random()*4)];
     this.state = actions.move;
     let currentSensor;      // will be used in loopSensors
+    let random, cummulative; // used in junction
 
     this.getState = function() {
         return this.state;
@@ -134,11 +135,10 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, sensors, pri
         }
     }
 
-    // at the sensor junction
     this.checkSensor = function(sensor) {
         // if EDGE sensor, then sense if the ant is on the river's edge
-        if(sensor.type == "EDGE" && this.x == referenceLine){
-            this.junction("EDGE");
+        if(sensor.type == "EDGE"){
+            if (this.x == referenceLine) {this.junction(sensor);}
         } else if (sensor.type == "ANT_EXTENDING"){
             // check: go through all ants that are extending
         } else if(sensor.type == "TIME"){
@@ -146,8 +146,18 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, sensors, pri
         }
     }
 
-    this.junction = function(sensor, type){
+    // at the sensor junction
+    this.junction = function(sensor){
+        random = Math.random();
+        cummulative = 0;
 
+        for(k=0; k<sensor.actions.length; k++){
+            cummulative += sensor.probs[k];
+            if(random < cummulative){
+                // perform action in position k
+                console.log(random, cummulative, sensor.actions[k]);
+            }
+        }
     }
 
     // this.performAction = function(action) {
