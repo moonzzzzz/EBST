@@ -55,11 +55,12 @@ function startGame() {
 function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) {
     this.x = movementArea.x + Math.floor(Math.random()*movementArea.width);
     this.y = movementArea.y + Math.floor(Math.random()*movementArea.height);
-    var directions = ["NORTH", "SOUTH", "EAST", "WEST"];
+    let directions = ["NORTH", "SOUTH", "EAST", "WEST"];
     this.direction = directions[Math.floor(Math.random()*4)];
     this.state = actions.move;
     let currentSensor;      // will be used in loopSensors
     let random, cummulative; // used in junction
+    let arrayOfBridges = new Array() , antsWithinEachBridge;
 
     this.getState = function() {
         return this.state;
@@ -133,9 +134,18 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
     this.checkSensor = function(sensor) {
         // if EDGE sensor, then sense if the ant is on the river's edge
         if(sensor.type == "EDGE"){
+            // check if applicable
             if (this.x <= referenceLine - 10 && this.direction == "WEST" && this.state.name == "MOVE") {this.junction(sensor);}
         } else if (sensor.type == "ANT_EXTENDING"){
             // check: go through all ants that are extending
+            for(l=0; l<arrayOfBridges.length; l++){
+                for(m=0; m<arrayOfBridges[l].length; m++){
+                    // conditions
+                    if(this.y < arrayOfBridges[l][m] + 3 && this.y > arrayOfBridges[l][m] - 3 && this.x <= referenceLine){
+                        console.log("Hit Bridge");
+                    }
+                }
+            }
         } else if(sensor.type == "TIME"){
             // check if time is up
         }
@@ -164,7 +174,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
                 this.ranDir();
             }
         } else if(action.name == "EXTEND"){
-            console.log("EXTEND", action, state); 
+            console.log("EXTEND", action, this.state); 
             this.x = referenceLine - 10;
         } else if(action.name == "CLIMB_ON"){
             // climb on
