@@ -79,7 +79,8 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
         //     this.state.name = "MOVE";
         // }
 
-        if(this.state == actions.move) this.move();
+        if(this.state == actions.move) {this.move();}
+        // console.log(this.state);
 
         this.loopSensors();
     } 
@@ -133,7 +134,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
     this.checkSensor = function(sensor) {
         // if EDGE sensor, then sense if the ant is on the river's edge
         if(sensor.type == "EDGE"){
-            if (this.x <= referenceLine - 10 && this.state.name == "MOVE") {this.junction(sensor);}
+            if (this.x <= referenceLine - 10 && this.direction == "WEST" && this.state.name == "MOVE") {this.junction(sensor);}
         } else if (sensor.type == "ANT_EXTENDING"){
             // check: go through all ants that are extending
         } else if(sensor.type == "TIME"){
@@ -159,14 +160,17 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
     }
 
     this.performAction = function(action) {
+        this.state = action;
         if (action.name == "MOVE") {
-            this.hitRiver();
-            // console.log("RIVER");
+            if(this.x <= referenceLine -10) {
+                this.hitRiver();
+            } else {
+                this.ranDir();
+            }
         } else if(action.name == "EXTEND"){
-            // console.log("EXTEND"); 
+            console.log("EXTEND", action, state); 
             this.x = referenceLine - 10;
         }
-        this.state = action;
     //     // ToDo: must first check what the next action is
     //     console.log(action.name);
     //     if(action.name == "EXTEND"){
