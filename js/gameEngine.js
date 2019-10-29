@@ -80,7 +80,6 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
         // }
 
         if(this.state == actions.move) {this.move();}
-        // console.log(this.state);
 
         this.loopSensors();
     } 
@@ -151,11 +150,8 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
             cummulative += sensor.probs[k];
             if(random < cummulative){
                 // perform action in position k
-                // console.log(random, cummulative, sensor.actions[k]);
                 this.performAction(sensor.actions[k]);
-                // console.log(sensor.actions[k]);
             }
-            // ToDo - bug: what if comtinuing to move requires a change in direction???
         }
     }
 
@@ -170,19 +166,13 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
         } else if(action.name == "EXTEND"){
             console.log("EXTEND", action, state); 
             this.x = referenceLine - 10;
+        } else if(action.name == "CLIMB_ON"){
+            // climb on
+        } else if(action.name == "CLIMB_OFF"){
+            // climb off
+        } else {
+            console.log("ERROR");
         }
-    //     // ToDo: must first check what the next action is
-    //     console.log(action.name);
-    //     if(action.name == "EXTEND"){
-    //         this.state = "EXTEND";
-    //         // console.log(action);
-    //     } else if(action.name == "CLIMB_ON"){
-
-    //     } else if(action.name == "CLIMB_OFF"){
-            
-    //     } else {
-    //         this.state = action;
-    //     }
     }
 
     this.navid = function() {
