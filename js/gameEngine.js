@@ -79,7 +79,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
         //     this.state.name = "MOVE";
         // }
 
-        this.move();
+        if(this.state == actions.move) this.move();
 
         this.loopSensors();
     } 
@@ -138,7 +138,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
     this.checkSensor = function(sensor) {
         // if EDGE sensor, then sense if the ant is on the river's edge
         if(sensor.type == "EDGE"){
-            if (this.x == referenceLine) {this.junction(sensor);}
+            if (this.x <= referenceLine - 10 && this.state.name == "MOVE") {this.junction(sensor);}
         } else if (sensor.type == "ANT_EXTENDING"){
             // check: go through all ants that are extending
         } else if(sensor.type == "TIME"){
@@ -155,12 +155,16 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
             cummulative += sensor.probs[k];
             if(random < cummulative){
                 // perform action in position k
-                console.log(random, cummulative, sensor.actions[k]);
+                // console.log(random, cummulative, sensor.actions[k]);
+                this.performAction(sensor.actions[k].name);
             }
         }
     }
 
-    // this.performAction = function(action) {
+    this.performAction = function(action) {
+        console.log("EXTEND");
+        this.x = referenceLine - 10;
+        this.state = actions.extend;
     //     // ToDo: must first check what the next action is
     //     console.log(action.name);
     //     if(action.name == "EXTEND"){
@@ -173,7 +177,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
     //     } else {
     //         this.state = action;
     //     }
-    // }
+    }
 
     this.navid = function() {
         // ANT STATE
