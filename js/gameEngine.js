@@ -58,7 +58,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
     this.state = actions.move;
     let currentSensor;      // will be used in loopSensors
     let random, cummulative, temp; // used in junction
-    let arrayOfBridges = new Array() , antsWithinEachBridge;
+    let arrayOfBridges = new Array();
     let sensorCalled;
 
     this.getState = function() {
@@ -111,14 +111,12 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
                 for(j=0; j<priorities.length; j++){
                     currentSensor = getActionSensor(this.state.sensors[i]);
                     if (currentSensor != undefined && sensorCalled == false){    // if any sensors present
-                        if(currentSensor.type == priorities[j]){    // check for coinciding with priorities
+                        if(currentSensor.type == priorities[j]){    // check for coinciding with this priority
                             this.checkSensor(currentSensor);
                             sensorCalled = true;
-                            // error: just looping through each priority, not actually executing the highest level
-                            console.log(j);
-                        } else {
-                            // ToDo: go to the next priority
+                            console.log(currentSensor.type, j, i);
                         }
+                        // if not coinciding, will coincide with the next one in the loop
                     }
                 }
             }
@@ -133,12 +131,11 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
         } else if (sensor.type == "ANT_EXTENDING"){
             // check: go through all ants that are extending
             for(l=0; l<arrayOfBridges.length; l++){
-                for(m=0; m<arrayOfBridges[l].length; m++){
+                console.log(arrayOfBridges[l]);
                     // conditions
-                    if(this.y < arrayOfBridges[l][m] + 3 && this.y > arrayOfBridges[l][m] - 3 && this.x <= referenceLine){
+                    if(this.y < arrayOfBridges[l][0] + 3 && this.y > arrayOfBridges[l][0] - 3 && this.x <= referenceLine){
                         console.log("Hit Bridge");
                     }
-                }
             }
         } else if(sensor.type == "TIME"){
             // check if time is up
@@ -156,7 +153,6 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
             if(random < cummulative && random > temp){
                 // perform action in position k
                 this.performAction(sensor.actions[k]);
-                // console.log(random, cummulative, sensor.actions[k]);
             }
         }
     }
@@ -170,10 +166,17 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
                 this.ranDir();
             }
         } else if(action.name == "EXTEND"){
+            // create a new bridge
+            let bridge = [this];
+            arrayOfBridges.push(bridge);
             // perform extend
             this.x = referenceLine - 10;
         } else if(action.name == "CLIMB_ON"){
-            // climb on
+            // ToDo
+            // climb on - add this ant to the current bridge
+            // arrayOfBridges[l][m] = this;
+            // reposition ant appropriately
+
         } else if(action.name == "CLIMB_OFF"){
             // climb off
         } else {
