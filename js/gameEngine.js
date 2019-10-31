@@ -32,7 +32,7 @@ let sensors = [{"id": 0, type: "EDGE", probs:[.1, .9], actions:[actions.extend, 
     {"id": 1, type: "ANT_EXTENDING", probs:[.9, .1], actions:[actions.climb_on, actions.move]}
 ]
 
-let priorities = ["ANT_EXTENDING", "EDGE", "TIME"];
+let priorities = ["EDGE", "ANT_EXTENDING", "TIME"];
 
 function getActionSensor(index){
     number = sensors.findIndex(x => x.id === index);
@@ -115,8 +115,8 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
                         if(currentSensor.type == priorities[j]){    // check for coinciding with this priority
                             sensorCalled = true;
                             this.checkSensor(currentSensor);
-                            // console.log(currentSensor.type, priorities[j]);
-                            // bug sensorCalled always true when ANT_EXTENDING required
+                            // bug sensorCalled always true when ANT_EXTENDING required (maybe fixed by switching the priorities and sensors for loops)
+                            // tried to fix, but now not sensing edge
                         }
                         // if not the priority, will hit the next priority
                     }
@@ -131,6 +131,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
             // check if applicable
             if (this.x <= referenceLine - 10 && this.direction == "WEST" && this.state.name == "MOVE") {this.junction(sensor);}
         } else if (sensor.type == "ANT_EXTENDING"){
+            hitBridge = false;
             // check: go through all ants that are extending
             for(l=0; l<arrayOfBridges.length; l++){
                 console.log(arrayOfBridges[l]);
@@ -139,6 +140,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
                         console.log("Hit Bridge");
                     }
             }
+            if(hitBridge == false) {}
         } else if(sensor.type == "TIME"){
             // check if time is up
         }
