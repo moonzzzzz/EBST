@@ -107,16 +107,18 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
 
         if(this.state.sensors.length != 0){
             // must run through the sensors and priorities attached to this action
-            for(i=0; i<this.state.sensors.length; i++){
-                for(j=0; j<priorities.length; j++){
+            for(j=0; j<priorities.length; j++){
+                for(i=0; i<this.state.sensors.length; i++){
                     currentSensor = getActionSensor(this.state.sensors[i]);
+                    console.log(currentSensor.type, priorities[j], j, sensorCalled);
                     if (currentSensor != undefined && sensorCalled == false){    // if any sensors present
                         if(currentSensor.type == priorities[j]){    // check for coinciding with this priority
-                            this.checkSensor(currentSensor);
                             sensorCalled = true;
-                            console.log(currentSensor.type, j, i);
+                            this.checkSensor(currentSensor);
+                            // console.log(currentSensor.type, priorities[j]);
+                            // bug sensorCalled always true when ANT_EXTENDING required
                         }
-                        // if not coinciding, will coincide with the next one in the loop
+                        // if not the priority, will hit the next priority
                     }
                 }
             }
