@@ -28,7 +28,7 @@ let actions = {
     climb_off:{name: "CLIMB_OFF", "sensors": []},  
 }
 
-let sensors = [{"id": 0, type: "EDGE", probs:[.1, .9], actions:[actions.extend, actions.move]},
+let sensors = [{"id": 0, type: "EDGE", probs:[.5, .5], actions:[actions.extend, actions.move]},
     {"id": 1, type: "ANT_EXTENDING", probs:[.9, .1], actions:[actions.climb_on, actions.move]}
 ]
 
@@ -59,7 +59,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
     this.direction = directions[Math.floor(Math.random()*4)];
     this.state = actions.move;
     let currentSensor;      // will be used in loopSensors
-    let random, cummulative; // used in junction
+    let random, cummulative, temp; // used in junction
     let arrayOfBridges = new Array() , antsWithinEachBridge;
 
     this.getState = function() {
@@ -70,17 +70,8 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
         ant_img = getAntImage(this.direction);
         ctx.drawImage(ant_img, this.x, this.y);
 
-        // if (this.state.name == "MOVE"){
-        //     this.move();
-        // } else if(this.state.name == "EXTEND") {
-        //     this.extend;
-        // } else if(this.state.name == "CLIMB_ON") {
-        //     // this.climbOn();
-        // } else {
-        //     this.state.name = "MOVE";
-        // }
-
-        if(this.state == actions.move) {this.move();}
+        if(this.state.name == "MOVE") {this.move();}
+        if(this.state.name == "EXTEND") {console.log(this.state);}
 
         this.loopSensors();
     } 
@@ -114,19 +105,21 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
     // }
 
     this.loopSensors = function() {
-        // must run through the sensors and priorities attached to this action
-        for(i=0; i<this.state.sensors.length; i++){
-            for(j=0; j<priorities.length; j++){
-                currentSensor = getActionSensor(this.state.sensors[i]);
-                // console.log(currentSensor);
-                if(currentSensor.type == priorities[j]){
-                    this.checkSensor(currentSensor);
-                } else {
-                    // ToDo: go to the next priority
+        if(this.state.sensors.length != 0){
+            // must run through the sensors and priorities attached to this action
+            for(i=0; i<this.state.sensors.length; i++){
+                for(j=0; j<priorities.length; j++){
+                    currentSensor = getActionSensor(this.state.sensors[i]);
+                    // console.log(currentSensor);
+                    if(currentSensor.type == priorities[j]){
+                        this.checkSensor(currentSensor);
+                    } else {
+                        // ToDo: go to the next priority
 
+                    }
+                    // console.log(this.state.sensors[i]);
+                    // console.log(this.state.sensors, priorities[j], "");
                 }
-                // console.log(this.state.sensors[i]);
-                // console.log(this.state.sensors, priorities[j], "");
             }
         }
     }
@@ -157,16 +150,19 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
         cummulative = 0;
 
         for(k=0; k<sensor.actions.length; k++){
+            temp = cummulative;
             cummulative += sensor.probs[k];
-            if(random < cummulative){
+            if(random < cummulative && random > temp){
                 // perform action in position k
                 this.performAction(sensor.actions[k]);
+                console.log(random, cummulative, sensor.actions[k]);
             }
         }
     }
 
     this.performAction = function(action) {
         this.state = action;
+        // if(this.state.name == "EXTEND") {console.log("EXTEND");}
         if (action.name == "MOVE") {
             if(this.x <= referenceLine -10) {
                 this.hitRiver();
@@ -174,7 +170,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
                 this.ranDir();
             }
         } else if(action.name == "EXTEND"){
-            console.log("EXTEND", action, this.state); 
+            // console.log("EXTEND", action, this.state); 
             this.x = referenceLine - 10;
         } else if(action.name == "CLIMB_ON"){
             // climb on
