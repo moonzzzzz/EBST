@@ -59,6 +59,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
     let currentSensor;      // will be used in loopSensors
     let random, cummulative, temp; // used in junction
     let arrayOfBridges = new Array() , antsWithinEachBridge;
+    let sensorCalled;
 
     this.getState = function() {
         return this.state;
@@ -102,18 +103,21 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
     // }
 
     this.loopSensors = function() {
+        sensorCalled = false;
+
         if(this.state.sensors.length != 0){
             // must run through the sensors and priorities attached to this action
             for(i=0; i<this.state.sensors.length; i++){
                 for(j=0; j<priorities.length; j++){
                     currentSensor = getActionSensor(this.state.sensors[i]);
-                    if (currentSensor != undefined){    // if any sensors present
+                    if (currentSensor != undefined && sensorCalled == false){    // if any sensors present
                         if(currentSensor.type == priorities[j]){    // check for coinciding with priorities
                             this.checkSensor(currentSensor);
-                            // console.log(j);
+                            sensorCalled = true;
+                            // error: just looping through each priority, not actually executing the highest level
+                            console.log(j);
                         } else {
                             // ToDo: go to the next priority
-                            // this.performAction(this.state);
                         }
                     }
                 }
