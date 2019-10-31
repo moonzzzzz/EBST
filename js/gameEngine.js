@@ -28,7 +28,7 @@ let actions = {
     climb_off:{name: "CLIMB_OFF", "sensors": []},  
 }
 
-let sensors = [{"id": 0, type: "EDGE", probs:[.5, .5], actions:[actions.extend, actions.move]},
+let sensors = [{"id": 0, type: "EDGE", probs:[.1, .9], actions:[actions.extend, actions.move]},
     {"id": 1, type: "ANT_EXTENDING", probs:[.9, .1], actions:[actions.climb_on, actions.move]}
 ]
 
@@ -38,8 +38,6 @@ function getActionSensor(index){
     number = sensors.findIndex(x => x.id === index);
     return sensors[number];
 }
-
-// console.log(getActionSensor(1));
 
 function startGame() {
     myGamePiece = new river(riverGeometry, myGameArea.canvas.getContext('2d'));
@@ -71,7 +69,6 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
         ctx.drawImage(ant_img, this.x, this.y);
 
         if(this.state.name == "MOVE") {this.move();}
-        if(this.state.name == "EXTEND") {console.log(this.state);}
 
         this.loopSensors();
     } 
@@ -110,15 +107,15 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
             for(i=0; i<this.state.sensors.length; i++){
                 for(j=0; j<priorities.length; j++){
                     currentSensor = getActionSensor(this.state.sensors[i]);
-                    // console.log(currentSensor);
-                    if(currentSensor.type == priorities[j]){
-                        this.checkSensor(currentSensor);
-                    } else {
-                        // ToDo: go to the next priority
-
+                    if (currentSensor != undefined){    // if any sensors present
+                        if(currentSensor.type == priorities[j]){    // check for coinciding with priorities
+                            this.checkSensor(currentSensor);
+                            // console.log(j);
+                        } else {
+                            // ToDo: go to the next priority
+                            // this.performAction(this.state);
+                        }
                     }
-                    // console.log(this.state.sensors[i]);
-                    // console.log(this.state.sensors, priorities[j], "");
                 }
             }
         }
@@ -155,14 +152,13 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
             if(random < cummulative && random > temp){
                 // perform action in position k
                 this.performAction(sensor.actions[k]);
-                console.log(random, cummulative, sensor.actions[k]);
+                // console.log(random, cummulative, sensor.actions[k]);
             }
         }
     }
 
     this.performAction = function(action) {
         this.state = action;
-        // if(this.state.name == "EXTEND") {console.log("EXTEND");}
         if (action.name == "MOVE") {
             if(this.x <= referenceLine -10) {
                 this.hitRiver();
@@ -170,7 +166,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
                 this.ranDir();
             }
         } else if(action.name == "EXTEND"){
-            // console.log("EXTEND", action, this.state); 
+            // perform extend
             this.x = referenceLine - 10;
         } else if(action.name == "CLIMB_ON"){
             // climb on
@@ -211,7 +207,6 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
             while (this.direction == "WEST"){
                 this.direction = directions[Math.floor(Math.random()*4)];
             }
-            // console.log(this.direction);
     }
 
     this.hitWall = function() {
