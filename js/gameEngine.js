@@ -19,7 +19,7 @@ let referenceLine = riverGeometry.x + riverGeometry.width;  // Can I remove refe
 let antMovementArea = {x: referenceLine, y: 0, width: myGameArea.canvas.width - referenceLine, height: myGameArea.canvas.height};
 let randomMovementThreshold = 0.99;
 let antGeometry = {width: 20, height: 28};  // ant facing north - by inspection (ant_img.width) for now
-let arrayOfBridges = new Array();   // used in ant object - 2D array
+let arrayOfBridges = new Array;   // used in ant object - 2D array
 
 // // Graph: create an array of objects for actions, with child sensors - also an array of objects
 let actions = {
@@ -138,12 +138,13 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
             hitBridge = false;
             // check: go through all ants that are extending
             for(l=0; l<arrayOfBridges.length; l++){
-                console.log(arrayOfBridges[l]);
-                    // conditions
-                    if(this.y < arrayOfBridges[l][0] + 3 && this.y > arrayOfBridges[l][0] - 3 && this.x <= referenceLine){
-                        console.log("Hit Bridge");
-                        sensorHit = true;
-                    }
+                // console.log(arrayOfBridges[l][0].y, this.y);
+                // if(this.y <= arrayOfBridges[l][0].y){console.log(this.y, "success");}
+                // conditions
+                if(this.y <= arrayOfBridges[l][0].y + 3 && this.y >= arrayOfBridges[l][0].y - 3 && this.x <= referenceLine + 10){
+                    console.log("Hit Bridge");
+                    sensorHit = true;
+                }
             }
             if(hitBridge == false) {}
         } else if(sensor.type == "TIME"){
@@ -176,8 +177,9 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
             }
         } else if(action.name == "EXTEND"){
             // create a new bridge
-            let bridge = [this];
-            arrayOfBridges.push([this]);
+            let bridge = new Array();
+            bridge.push(this);
+            arrayOfBridges.push(bridge);
             // perform extend
             this.x = referenceLine - 10;
         } else if(action.name == "CLIMB_ON"){
