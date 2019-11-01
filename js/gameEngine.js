@@ -19,6 +19,7 @@ let referenceLine = riverGeometry.x + riverGeometry.width;  // Can I remove refe
 let antMovementArea = {x: referenceLine, y: 0, width: myGameArea.canvas.width - referenceLine, height: myGameArea.canvas.height};
 let randomMovementThreshold = 0.99;
 let antGeometry = {width: 20, height: 28};  // ant facing north - by inspection (ant_img.width) for now
+let arrayOfBridges = new Array();   // used in ant object - 2D array
 
 // // Graph: create an array of objects for actions, with child sensors - also an array of objects
 let actions = {
@@ -32,7 +33,7 @@ let sensors = [{"id": 0, type: "EDGE", probs:[.1, .9], actions:[actions.extend, 
     {"id": 1, type: "ANT_EXTENDING", probs:[.9, .1], actions:[actions.climb_on, actions.move]}
 ]
 
-let priorities = ["EDGE", "ANT_EXTENDING", "TIME"];
+let priorities = ["ANT_EXTENDING", "EDGE", "TIME"];
 
 function getActionSensor(index){
     number = sensors.findIndex(x => x.id === index);
@@ -58,8 +59,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
     this.state = actions.move;
     let currentSensor;      // will be used in loopSensors
     let random, cummulative, temp; // used in junction
-    let arrayOfBridges = new Array();
-    let sensorCalled;
+    let sensorHit; // used in loopSensors function
 
     this.getState = function() {
         return this.state;
@@ -104,19 +104,20 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
 
     this.loopSensors = function() {
         sensorCalled = false;
+        sensorHit = false;
 
         if(this.state.sensors.length != 0){
             // must run through the sensors and priorities attached to this action
             for(j=0; j<priorities.length; j++){
                 for(i=0; i<this.state.sensors.length; i++){
                     currentSensor = getActionSensor(this.state.sensors[i]);
-                    console.log(currentSensor.type, priorities[j], j, sensorCalled);
-                    if (currentSensor != undefined && sensorCalled == false){    // if any sensors present
+
+                    if (currentSensor != undefined && sensorHit == false){    // if any sensors present
                         if(currentSensor.type == priorities[j]){    // check for coinciding with this priority
-                            sensorCalled = true;
+                            // console.log(currentSensor.type);
                             this.checkSensor(currentSensor);
                             // bug sensorCalled always true when ANT_EXTENDING required (maybe fixed by switching the priorities and sensors for loops)
-                            // tried to fix, but now not sensing edge
+                            // bug still persisting
                         }
                         // if not the priority, will hit the next priority
                     }
@@ -129,7 +130,10 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
         // if EDGE sensor, then sense if the ant is on the river's edge
         if(sensor.type == "EDGE"){
             // check if applicable
-            if (this.x <= referenceLine - 10 && this.direction == "WEST" && this.state.name == "MOVE") {this.junction(sensor);}
+            if (this.x <= referenceLine - 10 && this.direction == "WEST" && this.state.name == "MOVE") {
+                this.junction(sensor);
+                sensorHit = true;
+            }
         } else if (sensor.type == "ANT_EXTENDING"){
             hitBridge = false;
             // check: go through all ants that are extending
@@ -138,6 +142,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
                     // conditions
                     if(this.y < arrayOfBridges[l][0] + 3 && this.y > arrayOfBridges[l][0] - 3 && this.x <= referenceLine){
                         console.log("Hit Bridge");
+                        sensorHit = true;
                     }
             }
             if(hitBridge == false) {}
@@ -172,7 +177,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
         } else if(action.name == "EXTEND"){
             // create a new bridge
             let bridge = [this];
-            arrayOfBridges.push(bridge);
+            arrayOfBridges.push([this]);
             // perform extend
             this.x = referenceLine - 10;
         } else if(action.name == "CLIMB_ON"){
