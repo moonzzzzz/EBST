@@ -131,8 +131,8 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
         if(sensor.type == "EDGE"){
             // check if applicable
             if (this.x <= referenceLine - 10 && this.direction == "WEST" && this.state.name == "MOVE") {
-                this.junction(sensor);
                 sensorHit = true;
+                this.junction(sensor);
             }
         } else if (sensor.type == "ANT_EXTENDING"){
             hitBridge = false;
@@ -142,11 +142,13 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
                 // if(this.y <= arrayOfBridges[l][0].y){console.log(this.y, "success");}
                 // conditions
                 if(this.y <= arrayOfBridges[l][0].y + 3 && this.y >= arrayOfBridges[l][0].y - 3 && this.x <= referenceLine + 10){
-                    console.log("Hit Bridge");
                     sensorHit = true;
+                    hitBridge = true;
+                    // move onto junction
+                    this.junction(sensor);
                 }
             }
-            if(hitBridge == false) {}
+            if(hitBridge == false) {}   // what is this for?
         } else if(sensor.type == "TIME"){
             // check if time is up
         }
@@ -184,7 +186,8 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
             this.x = referenceLine - 10;
         } else if(action.name == "CLIMB_ON"){
             // ToDo
-            // climb on - add this ant to the current bridge
+            // add this ant to the current bridge
+            
             // arrayOfBridges[l][m] = this;
             // reposition ant appropriately
 
