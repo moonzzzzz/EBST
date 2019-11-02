@@ -19,47 +19,51 @@ let referenceLine = riverGeometry.x + riverGeometry.width;  // Can I remove refe
 let antMovementArea = {x: referenceLine, y: 0, width: myGameArea.canvas.width - referenceLine, height: myGameArea.canvas.height};
 let randomMovementThreshold = 0.99;
 let antGeometry = {width: 20, height: 28};  // ant facing north - by inspection (ant_img.width) for now
+let arrayOfBridges = new Array;   // used in ant object - 2D array
 
-// // Graph style 2: create an array of objects for actions, with child sensors - also an array of objects
-let nodes = new Array(new Action("MOVE"), new Action("EDGE"), new Action("CLIMB_ON"));
-
-// add sensors
-nodes[0].sensors = new Array(new Sensor("EDGE", 0.1, nodes[1]), new Sensor("ANT_EXTENDING", 0.9, nodes[2]));
-nodes[1].sensors = new Array();
-nodes[2].sensors = new Array();
-// nodes[3].sensors = new Array();
-
-function Action(name) {
-    this.name = name;
+// // Graph: create an array of objects for actions, with child sensors - also an array of objects
+let actions = {
+    move:{name: "MOVE", "sensors": [0, 1]},
+    extend:{name: "EXTEND", "sensors": []},
+    climb_on:{name: "CLIMB_ON", "sensors": []}, 
+    climb_off:{name: "CLIMB_OFF", "sensors": []},  
 }
 
-function Sensor(name, prob, endAction){
-    this.name = name;
-    this.prob = prob;
-    this.endAction = endAction;
-}
+let sensors = [{"id": 0, type: "EDGE", probs:[.1, .9], actions:[actions.extend, actions.move]},
+    {"id": 1, type: "ANT_EXTENDING", probs:[.9, .1], actions:[actions.climb_on, actions.move]}
+]
 
-// for(i=0; i<nodes[1].sensors.length; i++){
-//     console.log(nodes[1].sensors[i].prob);
-// }
+let priorities = ["ANT_EXTENDING", "EDGE", "TIME"];
+
+function getActionSensor(index){
+    number = sensors.findIndex(x => x.id === index);
+    return sensors[number];
+}
 
 function startGame() {
     myGamePiece = new river(riverGeometry, myGameArea.canvas.getContext('2d'));
 
     // create ant objects
     for(let i = 0; i < numAnts; i++){
-    myAnts[i] = new AntObj(antMovementArea, antGeometry, randomMovementThreshold, myGameArea.canvas.getContext('2d'), nodes);
+        myAnts[i] = new AntObj(antMovementArea, antGeometry, randomMovementThreshold, myGameArea.canvas.getContext('2d'), actions, priorities);
     }
 
     myGameArea.start();
 }
 
-function AntObj(movementArea, antGeometry, threshold, ctx, nodes) {
+function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) {
     this.x = movementArea.x + Math.floor(Math.random()*movementArea.width);
     this.y = movementArea.y + Math.floor(Math.random()*movementArea.height);
-    var directions = ["NORTH", "SOUTH", "EAST", "WEST"];
+    let directions = ["NORTH", "SOUTH", "EAST", "WEST"];
     this.direction = directions[Math.floor(Math.random()*4)];
-    this.state = nodes[0];
+    this.state = actions.move;
+    let currentSensor;      // will be used in loopSensors
+    let random, cummulative, temp; // used in junction
+    let sensorHit; // used in loopSensors function
+
+    this.getState = function() {
+        return this.state;
+    }
 
 
     this.navid = function(){
@@ -75,17 +79,9 @@ function AntObj(movementArea, antGeometry, threshold, ctx, nodes) {
         ant_img = getAntImage(this.direction);
         ctx.drawImage(ant_img, this.x, this.y);
 
-        if (this.state.name == "MOVE"){
-            this.move();
-        } else if(this.state.name == "EXTEND") {
-            // do nothing but time sensor
-        } else if(this.state.name == "CLIMB_ON") {
-            // this.climbOn();
-        } else {
-            this.state.name = "MOVE";
-        }
+        if(this.state.name == "MOVE") {this.move();}
 
-        this.checkSensors(); // Navid: do you get ready for the next round?, I suggest every round decides for itself. Unless you have a reason based on experience
+        this.loopSensors();
     } 
 
     this.move = function() {
@@ -103,68 +99,167 @@ function AntObj(movementArea, antGeometry, threshold, ctx, nodes) {
             this.hitWall();
     }
 
-    this.extend = function() {
-        this.x = referenceLine - 10;
-        console.log(this.x);
-    }
+    // this.extend = function() {
+    //     this.x = referenceLine - 10;
+    //     console.log(this.x);
+    // }
 
-    this.climbOn = function() {
+    // this.climbOn = function() {
 
-    }
+    // }
 
-    this.climbOff = function() {
+    // this.climbOff = function() {
 
-    }
+    // }
 
-    this.checkSensors = function() {
-        // check if any sensors are present
-        if(this.state.sensors == undefined){
-            this.hitRiver();    // default action
-        } else {
-            // must run through the sensors of this state and enact them
-            for(i=0; i<this.state.sensors.length; i++){
-                if(this.state.sensors[i] != undefined){
-                    this.sense(this.state.sensors[i]);
+    this.loopSensors = function() {
+        // Navid
+        // orderedSensors = arrangeSensorByPriority(this.sensers);
+        // foreach (s in orderedSensors){
+        //     if (isApplicable(s)){
+        //         this.state = s;
+        //         break; // stops the for loop
+        //     }
+        // }
+
+        // actOnSensor(this.state);
+
+        // function actOnSensor(s){
+        //     if (s == "move"){
+        //         move();
+        //     } 
+        //     else if (s = extend){
+        //         extend();
+        //     }
+        // }
+        // !Navid
+
+
+        sensorCalled = false;
+        sensorHit = false;
+
+        if(this.state.sensors.length != 0){
+            // must run through the sensors and priorities attached to this action
+            for(j=0; j<priorities.length; j++){
+                for(i=0; i<this.state.sensors.length; i++){
+                    currentSensor = getActionSensor(this.state.sensors[i]);
+
+                    if (currentSensor != undefined && sensorHit == false){    // if any sensors present
+                        if(currentSensor.type == priorities[j]){    // check for coinciding with this priority
+                            // console.log(currentSensor.type);
+                            this.checkSensor(currentSensor);
+                            // bug sensorCalled always true when ANT_EXTENDING required (maybe fixed by switching the priorities and sensors for loops)
+                            // bug still persisting
+                        }
+                        // if not the priority, will hit the next priority
+                    }
                 }
-             }
+            }
         }
     }
 
-    this.sense = function(sensor) {
-        if(sensor.name == "EDGE"){
-            // check for hitting edge
-            if(this.x <= referenceLine && Math.random() < sensor.prob) {
-                // now perform the next action
-                this.performAction(sensor.endAction);
+    this.checkSensor = function(sensor) {
+        // if EDGE sensor, then sense if the ant is on the river's edge
+        if(sensor.type == "EDGE"){
+            // check if applicable
+            if (this.x <= referenceLine - 10 && this.direction == "WEST" && this.state.name == "MOVE") {
+                sensorHit = true;
+                this.junction(sensor);
             }
-        } else if (sensor.name == "ANT_EXTENDING"){
+        } else if (sensor.type == "ANT_EXTENDING"){
+            hitBridge = false;
+            // check: go through all ants that are extending
+            for(l=0; l<arrayOfBridges.length; l++){
+                // console.log(arrayOfBridges[l][0].y, this.y);
+                // if(this.y <= arrayOfBridges[l][0].y){console.log(this.y, "success");}
+                // conditions
+                if(this.y <= arrayOfBridges[l][0].y + 3 && this.y >= arrayOfBridges[l][0].y - 3 && this.x <= referenceLine + 10){
+                    sensorHit = true;
+                    hitBridge = true;
+                    // move onto junction
+                    this.junction(sensor);
+                }
+            }
+            if(hitBridge == false) {}   // what is this for?
+        } else if(sensor.type == "TIME"){
+            // check if time is up
+        }
+    }
 
-        } else if (sensor.name == "TIME"){
+    // at the sensor junction
+    this.junction = function(sensor){
+        random = Math.random();
+        cummulative = 0;
 
+        for(k=0; k<sensor.actions.length; k++){
+            temp = cummulative;
+            cummulative += sensor.probs[k];
+            if(random < cummulative && random > temp){
+                // perform action in position k
+                this.performAction(sensor.actions[k]);
+            }
         }
     }
 
     this.performAction = function(action) {
-        // ToDo: must first check what the next action is
-        if(action.name == "EXTEND"){
-            this.state = action;
-            console.log(action);
-        } else if(action == "CLIMB_ON"){
-
-        } else if(action == "CLIMB_OFF"){
+        this.state = action;
+        if (action.name == "MOVE") {
+            if(this.x <= referenceLine -10) {
+                this.hitRiver();
+            } else {
+                this.ranDir();
+            }
+        } else if(action.name == "EXTEND"){
+            // create a new bridge
+            let bridge = new Array();
+            bridge.push(this);
+            arrayOfBridges.push(bridge);
+            // perform extend
+            this.x = referenceLine - 10;
+        } else if(action.name == "CLIMB_ON"){
+            // ToDo
+            // add this ant to the current bridge
             
+            // arrayOfBridges[l][m] = this;
+            // reposition ant appropriately
+
+        } else if(action.name == "CLIMB_OFF"){
+            // climb off
         } else {
-            this.state = action;
+            console.log("ERROR");
         }
+    }
+
+    this.navid = function() {
+        // ANT STATE
+        // every ant has a state - always starts in the move state
+        // get the current state
+
+        // \/\/ decide on next state \/\/
+
+        // LOOP SENSORS
+        // loop through the sensors of that state (based on priorities)
+        //      (inside loop) if sensor is applicable, 
+        //          follow the sensor
+        //      if non-applicable,
+        //          go to next priority
+        
+        // FOLLOWING THE SENSOR -> JUNCTION (CHOOSE WHICH WAY TO GO)
+        // generate a random number
+        // based on the random number, change the current state to the next state
+
+        // ACTING
+        // act on the next state
+        // set the current state to the next state
+
+        // Notes: one function to determine the state, and another function to update its position
     }
 
     this.hitRiver = function() {
         // if ant hits the river, default is to go anywhere but WEST
-        if(this.x <= referenceLine && this.state.name == "MOVE") {
-            while (this.direction == 'WEST'){
+            while (this.direction == "WEST"){
                 this.direction = directions[Math.floor(Math.random()*4)];
             }
-        }
     }
 
     this.hitWall = function() {
