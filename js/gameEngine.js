@@ -13,10 +13,11 @@ var myGameArea = {
 var myGamePiece;
 var myRiver;
 var myAnts = new Array();
-let numAnts = 100;
+let numAnts = 200;
 let riverGeometry = {x: 100, y: 0, width: 40, height: 270, color: "blue"};
 let referenceLine = riverGeometry.x + riverGeometry.width;  // Can I remove reference line because it is the same as antMovementArea.x ??
 let antMovementArea = {x: referenceLine, y: 0, width: myGameArea.canvas.width - referenceLine, height: myGameArea.canvas.height};
+let otherSideArea = {x: 0, y: 0, width: referenceLine - riverGeometry.width, height: myGameArea.canvas.height};
 let randomMovementThreshold = 0.99;
 let antGeometry = {width: 20, height: 28};  // ant facing north - by inspection (ant_img.width) for now
 let arrayOfBridges = new Array;   // used in ant object - 2D array
@@ -46,13 +47,13 @@ function startGame() {
 
     // create ant objects
     for(let i = 0; i < numAnts; i++){
-    myAnts[i] = new AntObj(antMovementArea, antGeometry, randomMovementThreshold, myGameArea.canvas.getContext('2d'), actions, priorities);
+    myAnts[i] = new AntObj(antMovementArea, otherSideArea, antGeometry, randomMovementThreshold, myGameArea.canvas.getContext('2d'), actions, priorities);
     }
 
     myGameArea.start();
 }
 
-function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) {
+function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, actions, priorities) {
     this.x = movementArea.x + Math.floor(Math.random()*movementArea.width);
     this.y = movementArea.y + Math.floor(Math.random()*movementArea.height);
     let directions = ["NORTH", "SOUTH", "EAST", "WEST"];
@@ -71,9 +72,13 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
         ant_img = getAntImage(this.direction);
         ctx.drawImage(ant_img, this.x, this.y);
 
-        if(this.state.name == "MOVE") {this.move();}
+        if(this.state.name == "MOVE") {
+            this.move();
+        } else if(this.state.name == "OTHER_SIDE"){
+            this.moveOnOtherSide();
+        }
 
-        this.loopSensors();
+        if(this.state.name != "OTHER_SIDE") this.loopSensors();
     } 
 
     this.move = function() {
@@ -91,18 +96,20 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
             this.hitWall();
     }
 
-    // this.extend = function() {
-    //     this.x = referenceLine - 10;
-    //     console.log(this.x);
-    // }
+    this.moveOnOtherSide = function() {
+        if(this.direction == 'NORTH'){
+            this.y--;
+        } else if (this.direction == 'SOUTH'){
+            this.y++;
+        } else if (this.direction == 'EAST'){
+            this.x++;
+        } else if (this.direction == 'WEST'){
+            this.x--;
+        }
 
-    // this.climbOn = function() {
-
-    // }
-
-    // this.climbOff = function() {
-
-    // }
+        //check if walls/river is hit or a sensor has been activated
+        this.hitWallOtherSide();
+    }
 
     this.loopSensors = function() {
 
@@ -211,13 +218,18 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
             // perform extend
             this.x = referenceLine - 10;
         } else if(action.name == "CLIMB_ON"){
-            // Ask: is using bridgeIndex like this bad coding practice?
-
             // reposition ant appropriately
-            console.log(arrayOfBridges[bridgeIndex][arrayOfBridges[bridgeIndex].length-1], arrayOfBridges[bridgeIndex].length-1);
-            this.y = arrayOfBridges[bridgeIndex][arrayOfBridges[bridgeIndex].length-1].y;
-            this.x = arrayOfBridges[bridgeIndex][arrayOfBridges[bridgeIndex].length-1].x - 10;
-            arrayOfBridges[bridgeIndex].push(this);
+
+            if (arrayOfBridges[bridgeIndex].length-1 < 5){            // if bridge incomplete, climb on
+                this.y = arrayOfBridges[bridgeIndex][arrayOfBridges[bridgeIndex].length-1].y;
+                this.x = arrayOfBridges[bridgeIndex][arrayOfBridges[bridgeIndex].length-1].x - 10;
+                arrayOfBridges[bridgeIndex].push(this);
+                // Ask Dr Navid: is using bridgeIndex like this bad coding practice?
+            } else {    // if bridge complete, go to other side
+                this.state = {name: "OTHER_SIDE"};
+                this.x = riverGeometry.x - antGeometry.width;
+            }
+
 
         } else if(action.name == "CLIMB_OFF"){
             // climb off
@@ -259,7 +271,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
     }
 
     this.hitWall = function() {
-        // when ant hits the wall, it simply changed direction
+        // when ant hits the wall, it simply changes direction
         if(this.x >= movementArea.width + movementArea.x - antGeometry.width) {
             while (this.direction == 'EAST'){
                 this.direction = directions[Math.floor(Math.random()*4)];
@@ -271,6 +283,32 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
              }
         }
         if (this.y >= movementArea.height + movementArea.y - antGeometry.width) {
+            while (this.direction == 'SOUTH'){
+                this.direction = directions[Math.floor(Math.random()*4)];
+             }
+        }
+
+        this.ranDir();
+    }
+
+    this.hitWallOtherSide = function() {
+        // when ant hits the wall on other side, it simply changes direction
+        if(this.x <= otherSideArea.x) {
+            while (this.direction == 'WEST'){
+                this.direction = directions[Math.floor(Math.random()*4)];
+             }
+        }
+        if(this.x >= otherSideArea.x + otherSideArea.width - antGeometry.width) {
+            while (this.direction == 'EAST'){
+                this.direction = directions[Math.floor(Math.random()*4)];
+             }
+        }
+        if(this.y <= otherSideArea.y) {
+            while (this.direction == 'NORTH'){
+                this.direction = directions[Math.floor(Math.random()*4)];
+             }
+        }
+        if (this.y >= otherSideArea.height + otherSideArea.y - antGeometry.width) {
             while (this.direction == 'SOUTH'){
                 this.direction = directions[Math.floor(Math.random()*4)];
              }
