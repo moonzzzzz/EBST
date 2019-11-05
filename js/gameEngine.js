@@ -30,10 +30,11 @@ let actions = {
 }
 
 let sensors = [{"id": 0, type: "EDGE", probs:[.1, .9], actions:[actions.extend, actions.move]},
-    {"id": 1, type: "ANT_EXTENDING", probs:[.9, .1], actions:[actions.climb_on, actions.move]}
+    {"id": 1, type: "ANT_EXTENDING", probs:[.9, .1], actions:[actions.climb_on, actions.move]},
+    {"id": 2, type: "TIME", probs:[], actions:[]}
 ]
 
-let priorities = ["ANT_EXTENDING", "EDGE", "TIME"];
+let priorities = ["EDGE", "ANT_EXTENDING", "TIME"];
 
 function getActionSensor(index){
     number = sensors.findIndex(x => x.id === index);
@@ -59,7 +60,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
     this.state = actions.move;
     let currentSensor;      // will be used in loopSensors
     let random, cummulative, temp; // used in junction
-    let sensorHit; // used in loopSensors function
+    let sensorHit, letOrderedSensors; // used in loopSensors function
 
     this.getState = function() {
         return this.state;
@@ -103,27 +104,54 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
     // }
 
     this.loopSensors = function() {
-        sensorCalled = false;
-        sensorHit = false;
 
-        if(this.state.sensors.length != 0){
-            // must run through the sensors and priorities attached to this action
-            for(j=0; j<priorities.length; j++){
-                for(i=0; i<this.state.sensors.length; i++){
-                    currentSensor = getActionSensor(this.state.sensors[i]);
+        orderedSensors = this.orderSensorsByPriority();
 
-                    if (currentSensor != undefined && sensorHit == false){    // if any sensors present
-                        if(currentSensor.type == priorities[j]){    // check for coinciding with this priority
-                            // console.log(currentSensor.type);
-                            this.checkSensor(currentSensor);
-                            // bug sensorCalled always true when ANT_EXTENDING required (maybe fixed by switching the priorities and sensors for loops)
-                            // bug still persisting
-                        }
-                        // if not the priority, will hit the next priority
-                    }
-                }
-            }
+        let firstApplicableSensor = this.getFirstApplicableSensor(orderedSensors);
+        // console.log(firstApplicableSensor);
+
+        if(firstApplicableSensor != null) {
+            let nextAction = this.junction(firstApplicableSensor);
+            // console.log(nextAction);
+
+            this.performAction(nextAction);
         }
+
+    }
+
+    this.getFirstApplicableSensor = function(sensorsList) {
+        let applicable, returnSensor;
+
+        // there's no way to break a forEach loop
+        orderedSensors.forEach(sensor => {
+            applicable = this.checkSensor(sensor);
+            if (applicable) {
+                returnSensor = sensor;
+            }
+        });
+
+        if (returnSensor != undefined){
+            return returnSensor;
+        } else {
+            return null;
+        }
+
+        // could potentially be more efficient
+    }
+
+    this.orderSensorsByPriority = function() {
+        let result = new Array();
+
+        // order sensors according to priority
+        priorities.forEach(priority => {
+            this.state.sensors.forEach(currentSensor => {
+                if(priority == getActionSensor(currentSensor).type){
+                    result.push(getActionSensor(currentSensor));
+                }
+            });
+        });
+
+        return result;
     }
 
     this.checkSensor = function(sensor) {
@@ -131,27 +159,31 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
         if(sensor.type == "EDGE"){
             // check if applicable
             if (this.x <= referenceLine - 10 && this.direction == "WEST" && this.state.name == "MOVE") {
-                sensorHit = true;
-                this.junction(sensor);
+                // this.junction(sensor);
+                // console.log(1);
+                return true;
             }
-        } else if (sensor.type == "ANT_EXTENDING"){
+        } else if (sensor.type == "ANT_EXTENDING" && this.direction == "WEST" && this.state.name == "MOVE"){
             hitBridge = false;
             // check: go through all ants that are extending
             for(l=0; l<arrayOfBridges.length; l++){
                 // console.log(arrayOfBridges[l][0].y, this.y);
                 // if(this.y <= arrayOfBridges[l][0].y){console.log(this.y, "success");}
                 // conditions
-                if(this.y <= arrayOfBridges[l][0].y + 3 && this.y >= arrayOfBridges[l][0].y - 3 && this.x <= referenceLine + 10){
-                    sensorHit = true;
-                    hitBridge = true;
+                if(this.y <= arrayOfBridges[l][0].y + 3 && this.y >= arrayOfBridges[l][0].y - 3 && this.x <= referenceLine){
                     // move onto junction
-                    this.junction(sensor);
+                    // saves l
+
+                    return true;
                 }
             }
             if(hitBridge == false) {}   // what is this for?
         } else if(sensor.type == "TIME"){
             // check if time is up
+            return true;
         }
+
+        return false;
     }
 
     // at the sensor junction
@@ -164,7 +196,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
             cummulative += sensor.probs[k];
             if(random < cummulative && random > temp){
                 // perform action in position k
-                this.performAction(sensor.actions[k]);
+                return sensor.actions[k];
             }
         }
     }
@@ -182,14 +214,18 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
             let bridge = new Array();
             bridge.push(this);
             arrayOfBridges.push(bridge);
+
             // perform extend
             this.x = referenceLine - 10;
         } else if(action.name == "CLIMB_ON"){
-            // ToDo
             // add this ant to the current bridge
-            
-            // arrayOfBridges[l][m] = this;
+            arrayOfBridges[l].push(this);
+
             // reposition ant appropriately
+            // console.log(l, arrayOfBridges[l].length-1, arrayOfBridges[l][arrayOfBridges[l].length-1].x - 10);
+            this.y = arrayOfBridges[l][arrayOfBridges[l].length-1].y;
+            this.x = arrayOfBridges[l][arrayOfBridges[l].length-1].x - 20;
+            console.log(this.x, this.y);
 
         } else if(action.name == "CLIMB_OFF"){
             // climb off
