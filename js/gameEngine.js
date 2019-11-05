@@ -61,6 +61,7 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
     let currentSensor;      // will be used in loopSensors
     let random, cummulative, temp; // used in junction
     let sensorHit, letOrderedSensors; // used in loopSensors function
+    let bridgeIndex;    // used between checkSensors and performAction functions
 
     this.getState = function() {
         return this.state;
@@ -112,7 +113,6 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
 
         if(firstApplicableSensor != null) {
             let nextAction = this.junction(firstApplicableSensor);
-            // console.log(nextAction);
 
             this.performAction(nextAction);
         }
@@ -159,25 +159,18 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
         if(sensor.type == "EDGE"){
             // check if applicable
             if (this.x <= referenceLine - 10 && this.direction == "WEST" && this.state.name == "MOVE") {
-                // this.junction(sensor);
-                // console.log(1);
                 return true;
             }
         } else if (sensor.type == "ANT_EXTENDING" && this.direction == "WEST" && this.state.name == "MOVE"){
-            hitBridge = false;
             // check: go through all ants that are extending
             for(l=0; l<arrayOfBridges.length; l++){
-                // console.log(arrayOfBridges[l][0].y, this.y);
-                // if(this.y <= arrayOfBridges[l][0].y){console.log(this.y, "success");}
-                // conditions
-                if(this.y <= arrayOfBridges[l][0].y + 3 && this.y >= arrayOfBridges[l][0].y - 3 && this.x <= referenceLine){
+                if(this.y <= arrayOfBridges[l][0].y + 3 && this.y >= arrayOfBridges[l][0].y - 3 && this.x <= referenceLine){     // conditions
                     // move onto junction
-                    // saves l
+                    bridgeIndex = l;
 
                     return true;
                 }
             }
-            if(hitBridge == false) {}   // what is this for?
         } else if(sensor.type == "TIME"){
             // check if time is up
             return true;
@@ -218,14 +211,13 @@ function AntObj(movementArea, antGeometry, threshold, ctx, actions, priorities) 
             // perform extend
             this.x = referenceLine - 10;
         } else if(action.name == "CLIMB_ON"){
-            // add this ant to the current bridge
-            arrayOfBridges[l].push(this);
+            // Ask: is using bridgeIndex like this bad coding practice?
 
             // reposition ant appropriately
-            // console.log(l, arrayOfBridges[l].length-1, arrayOfBridges[l][arrayOfBridges[l].length-1].x - 10);
-            this.y = arrayOfBridges[l][arrayOfBridges[l].length-1].y;
-            this.x = arrayOfBridges[l][arrayOfBridges[l].length-1].x - 20;
-            console.log(this.x, this.y);
+            console.log(arrayOfBridges[bridgeIndex][arrayOfBridges[bridgeIndex].length-1], arrayOfBridges[bridgeIndex].length-1);
+            this.y = arrayOfBridges[bridgeIndex][arrayOfBridges[bridgeIndex].length-1].y;
+            this.x = arrayOfBridges[bridgeIndex][arrayOfBridges[bridgeIndex].length-1].x - 10;
+            arrayOfBridges[bridgeIndex].push(this);
 
         } else if(action.name == "CLIMB_OFF"){
             // climb off
