@@ -27,7 +27,8 @@ let actions = {
     move:{name: "MOVE", "sensors": [0, 1]},
     extend:{name: "EXTEND", "sensors": []},
     climb_on:{name: "CLIMB_ON", "sensors": []}, 
-    climb_off:{name: "CLIMB_OFF", "sensors": []},  
+    climb_off:{name: "CLIMB_OFF", "sensors": []}, 
+    dead:{name: "DEAD"} 
 }
 
 let sensors = [{"id": 0, type: "EDGE", probs:[.1, .9], actions:[actions.extend, actions.move]},
@@ -43,18 +44,44 @@ function getActionSensor(index){
 }
 
 function timedText() {
-    setTimeout(myTimeout1, 2000);
+    document.getElementById("demo").innerHTML = "5";
+    setTimeout(myTimeout_4, 1000);
+    setTimeout(myTimeout_3, 2000);
+    setTimeout(myTimeout_2, 3000);
+    setTimeout(myTimeout_1, 4000);
+    setTimeout(myTimeout, 5000);
 }
 
-function myTimeout1() {
+function myTimeout_4() {
+    document.getElementById("demo").innerHTML = "4";
+}
+
+function myTimeout_3() {
+    document.getElementById("demo").innerHTML = "3";
+}
+
+function myTimeout_2() {
+    document.getElementById("demo").innerHTML = "2";
+}
+
+function myTimeout_1() {
+    document.getElementById("demo").innerHTML = "1";
+}
+
+function myTimeout() {
     document.getElementById("demo").innerHTML = "Climb Off";
     antsClimbOff();
+    deleteBridges();
 }
 
 function antsClimbOff() {
     for(i=0; i<myAnts.length; i++){
         myAnts[i].climbOff();
     }
+}
+
+function deleteBridges() {
+        arrayOfBridges = [];
 }
 
 function startGame() {
@@ -85,7 +112,7 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
 
     this.update = function() {
         ant_img = getAntImage(this.direction);
-        ctx.drawImage(ant_img, this.x, this.y);
+         if(this.state != actions.dead) {ctx.drawImage(ant_img, this.x, this.y);}
 
         if(this.state.name == "MOVE") {
             this.move();
@@ -94,7 +121,7 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
         }
 
         // if(this.state == dead)
-        if(this.state.name != "OTHER_SIDE") this.loopSensors();
+        if(this.state.name != "OTHER_SIDE" && this.state != actions.dead) this.loopSensors();
     } 
 
     this.move = function() {
@@ -370,9 +397,30 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
         if(this.state == actions.extend) {
             this.direction = "EAST";
             this.state = actions.move;
-            console.log("climbing off" + this);
         }
+
+        // check if ant is in an climb_on state
+        // if yes, then change to dead state
+        if(this.state == actions.climb_on){
+            this.direction = "EAST";    //  working
+            this.state = actions.dead;
+            console.log(this.state);
+        }
+
+        // ALTERNATIVE PLAN
+        // loop through all bridges
+        // if ant is in extending state -> change to moving state
+        // if ant is in climb_on state -> change to dead state
     }
+
+    // this.searchBridge = function(ant) {
+    //     for(i=0; i<arrayOfBridges.length; i++){
+    //         if(ant == arrayOfBridges[i][0]){
+    //             return i;
+    //             // console.log(i);
+    //         }
+    //     }
+    // }
 }
 
 function river(properties, ctx) {
