@@ -13,7 +13,7 @@ var myGameArea = {
 var myGamePiece;
 var myRiver;
 var myAnts = new Array();
-let numAnts = 200;
+let numAnts = 100;
 let riverGeometry = {x: 100, y: 0, width: 40, height: 270, color: "blue"};
 let referenceLine = riverGeometry.x + riverGeometry.width;  // Can I remove reference line because it is the same as antMovementArea.x ??
 let antMovementArea = {x: referenceLine, y: 0, width: myGameArea.canvas.width - referenceLine, height: myGameArea.canvas.height};
@@ -42,6 +42,21 @@ function getActionSensor(index){
     return sensors[number];
 }
 
+function timedText() {
+    setTimeout(myTimeout1, 2000);
+}
+
+function myTimeout1() {
+    document.getElementById("demo").innerHTML = "Climb Off";
+    antsClimbOff();
+}
+
+function antsClimbOff() {
+    for(i=0; i<myAnts.length; i++){
+        myAnts[i].climbOff();
+    }
+}
+
 function startGame() {
     myGamePiece = new river(riverGeometry, myGameArea.canvas.getContext('2d'));
 
@@ -61,7 +76,7 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
     this.state = actions.move;
     let currentSensor;      // will be used in loopSensors
     let random, cummulative, temp; // used in junction
-    let sensorHit, letOrderedSensors; // used in loopSensors function
+    let orderedSensors; // used in loopSensors function
     let bridgeIndex;    // used between checkSensors and performAction functions
 
     this.getState = function() {
@@ -78,6 +93,7 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
             this.moveOnOtherSide();
         }
 
+        // if(this.state == dead)
         if(this.state.name != "OTHER_SIDE") this.loopSensors();
     } 
 
@@ -230,7 +246,6 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
                 this.x = riverGeometry.x - antGeometry.width;
             }
 
-
         } else if(action.name == "CLIMB_OFF"){
             // climb off
         } else {
@@ -345,6 +360,18 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
         }
 
         return ant_img;
+    }
+
+    this.climbOff = function() {
+        // PLAN
+
+        // check if ant is in an extending state
+        // if yes, then return to moving state
+        if(this.state == actions.extend) {
+            this.direction = "EAST";
+            this.state = actions.move;
+            console.log("climbing off" + this);
+        }
     }
 }
 
