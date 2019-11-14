@@ -395,14 +395,15 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
         // check if ant is in an extending state
         // if yes, then return to moving state
         if(this.state == actions.extend) {
-            this.direction = "EAST";
+            while (this.direction == 'WEST'){   // go anywhere but west
+                this.direction = directions[Math.floor(Math.random()*4)];
+             }
             this.state = actions.move;
         }
 
         // check if ant is in an climb_on state
         // if yes, then change to dead state
         if(this.state == actions.climb_on){
-            this.direction = "EAST";    //  working
             this.state = actions.dead;
             console.log(this.state);
         }
