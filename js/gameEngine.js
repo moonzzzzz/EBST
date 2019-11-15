@@ -45,14 +45,14 @@ function getActionSensor(index){
 
 // Create a timer
 
+// PLAN:
+// if timer priority is top,
+// as soon as that action is performed, a the start time will be saved
+
 let generalTime = 0;
 setInterval(function() {
 timer.innerHTML = "Time: " + generalTime++/100;
 }, 10);
-
-// PLAN:
-// if timer priority is top,
-// as soon as that action is performed, a the start time will be saved
 
 // function timedText() {
 //     document.getElementById("demo").innerHTML = "5";
@@ -173,7 +173,6 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
 
         let firstApplicableSensor = this.getFirstApplicableSensor(orderedSensors);
         // if(firstApplicableSensor != null && firstApplicableSensor.type == "TIME") {console.log("TIME");}
-        // console.log(firstApplicableSensor);
 
         if(firstApplicableSensor != null) {
             let nextAction = this.junction(firstApplicableSensor);
@@ -236,8 +235,7 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
                 }
             }
         } else if(sensor.type == "TIME"){
-            // check if time has already started
-            if(this.startTime == null) {
+            if(this.startTime == null) {    // check if time has already started
                 this.startTime = generalTime/100;
             } else {
                 this.currentTime = generalTime/100;
@@ -297,6 +295,14 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
 
         } else if(action.name == "CLIMB_OFF"){
             // climb off
+
+            console.log("CLIMB_OFF")
+
+            // PLAN:
+            // identify bridge
+            // delete that bridge
+            // extending ant -> move
+            // climb-on -> dead
         } else {
             console.log("ERROR");
         }
