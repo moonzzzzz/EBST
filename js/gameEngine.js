@@ -25,7 +25,7 @@ let arrayOfBridges = new Array;   // used in ant object - 2D array
 // // Graph: create an array of objects for actions, with child sensors - also an array of objects
 let actions = {
     move:{name: "MOVE", "sensors": [0, 1]},
-    extend:{name: "EXTEND", "sensors": []},
+    extend:{name: "EXTEND", "sensors": [2]},
     climb_on:{name: "CLIMB_ON", "sensors": []}, 
     climb_off:{name: "CLIMB_OFF", "sensors": []}, 
     dead:{name: "DEAD"} 
@@ -33,56 +33,67 @@ let actions = {
 
 let sensors = [{"id": 0, type: "EDGE", probs:[.1, .9], actions:[actions.extend, actions.move]},
     {"id": 1, type: "ANT_EXTENDING", probs:[.9, .1], actions:[actions.climb_on, actions.move]},
-    {"id": 2, type: "TIME", probs:[], actions:[]}
+    {"id": 2, type: "TIME", probs:[0.5, 0.5], actions:[actions.climb_off, actions.extend]}
 ]
 
-let priorities = ["EDGE", "ANT_EXTENDING", "TIME"];
+let priorities = ["TIME", "EDGE", "ANT_EXTENDING"];
 
 function getActionSensor(index){
     number = sensors.findIndex(x => x.id === index);
     return sensors[number];
 }
 
-function timedText() {
-    document.getElementById("demo").innerHTML = "5";
-    setTimeout(myTimeout_4, 1000);
-    setTimeout(myTimeout_3, 2000);
-    setTimeout(myTimeout_2, 3000);
-    setTimeout(myTimeout_1, 4000);
-    setTimeout(myTimeout, 5000);
-}
+// Create a timer
 
-function myTimeout_4() {
-    document.getElementById("demo").innerHTML = "4";
-}
+let generalTime = 0;
+setInterval(function() {
+timer.innerHTML = "Time: " + generalTime++/100;
+}, 10);
 
-function myTimeout_3() {
-    document.getElementById("demo").innerHTML = "3";
-}
+// PLAN:
+// if timer priority is top,
+// as soon as that action is performed, a the start time will be saved
 
-function myTimeout_2() {
-    document.getElementById("demo").innerHTML = "2";
-}
+// function timedText() {
+//     document.getElementById("demo").innerHTML = "5";
+//     setTimeout(myTimeout_4, 1000);
+//     setTimeout(myTimeout_3, 2000);
+//     setTimeout(myTimeout_2, 3000);
+//     setTimeout(myTimeout_1, 4000);
+//     setTimeout(myTimeout, 5000);
+// }
 
-function myTimeout_1() {
-    document.getElementById("demo").innerHTML = "1";
-}
+// function myTimeout_4() {
+//     document.getElementById("demo").innerHTML = "4";
+// }
 
-function myTimeout() {
-    document.getElementById("demo").innerHTML = "Climb Off";
-    antsClimbOff();
-    deleteBridges();
-}
+// function myTimeout_3() {
+//     document.getElementById("demo").innerHTML = "3";
+// }
 
-function antsClimbOff() {
-    for(i=0; i<myAnts.length; i++){
-        myAnts[i].climbOff();
-    }
-}
+// function myTimeout_2() {
+//     document.getElementById("demo").innerHTML = "2";
+// }
 
-function deleteBridges() {
-        arrayOfBridges = [];
-}
+// function myTimeout_1() {
+//     document.getElementById("demo").innerHTML = "1";
+// }
+
+// function myTimeout() {
+//     document.getElementById("demo").innerHTML = "Climb Off";
+//     antsClimbOff();
+//     deleteBridges();
+// }
+
+// function antsClimbOff() {
+//     for(i=0; i<myAnts.length; i++){
+//         myAnts[i].climbOff();
+//     }
+// }
+
+// function deleteBridges() {
+//         arrayOfBridges = [];
+// }
 
 function startGame() {
     myGamePiece = new river(riverGeometry, myGameArea.canvas.getContext('2d'));
@@ -105,6 +116,8 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
     let random, cummulative, temp; // used in junction
     let orderedSensors; // used in loopSensors function
     let bridgeIndex;    // used between checkSensors and performAction functions
+    this.startTime;
+    this.currentTime;  // to be used for time sensor
 
     this.getState = function() {
         return this.state;
@@ -159,6 +172,7 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
         orderedSensors = this.orderSensorsByPriority();
 
         let firstApplicableSensor = this.getFirstApplicableSensor(orderedSensors);
+        // if(firstApplicableSensor != null && firstApplicableSensor.type == "TIME") {console.log("TIME");}
         // console.log(firstApplicableSensor);
 
         if(firstApplicableSensor != null) {
@@ -222,8 +236,16 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
                 }
             }
         } else if(sensor.type == "TIME"){
-            // check if time is up
-            return true;
+            // check if time has already started
+            if(this.startTime == null) {
+                this.startTime = generalTime/100;
+            } else {
+                this.currentTime = generalTime/100;
+            }
+
+            if(this.currentTime - this.startTime >= 5) {
+                return true;
+            }
         }
 
         return false;
@@ -407,21 +429,8 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
             this.state = actions.dead;
             console.log(this.state);
         }
-
-        // ALTERNATIVE PLAN
-        // loop through all bridges
-        // if ant is in extending state -> change to moving state
-        // if ant is in climb_on state -> change to dead state
     }
 
-    // this.searchBridge = function(ant) {
-    //     for(i=0; i<arrayOfBridges.length; i++){
-    //         if(ant == arrayOfBridges[i][0]){
-    //             return i;
-    //             // console.log(i);
-    //         }
-    //     }
-    // }
 }
 
 function river(properties, ctx) {
