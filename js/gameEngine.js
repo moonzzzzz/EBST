@@ -278,6 +278,7 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
             let bridge = new Array();
             bridge.push(this);
             arrayOfBridges.push(bridge);
+            if(this.bridgeIndex == null) {this.bridgeIndex = arrayOfBridges.length-1;}   // for use in climb_off
 
             // perform extend
             this.x = referenceLine - 10;
@@ -300,15 +301,27 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
             console.log("CLIMB_OFF")
 
             // PLAN:
-            // identify bridge
-            // delete that bridge
-            // extending ant -> move
-            // climb-on -> dead
-
+            // identify bridge - bridgeIndex
+            this.deleteBridge(this.bridgeIndex);
 
         } else {
             console.log("ERROR");
         }
+    }
+
+    this.deleteBridge = function(index) {
+        console.log(arrayOfBridges, index);
+        // loop through all ants in bridge
+        arrayOfBridges[index].forEach(ant => {
+            if (ant.state == actions.extend) {  // extending ant -> move
+                ant.state = actions.move;
+            } else if(ant.state == actions.climb_on) {  // climb-on -> dead
+                ant.state = actions.dead;
+            }
+        });
+
+        // delete this bridge
+        arrayOfBridges[this.bridgeIndex] = [0];
     }
 
     this.navid = function() {
