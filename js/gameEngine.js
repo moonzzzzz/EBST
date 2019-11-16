@@ -297,11 +297,8 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
 
         } else if(action.name == "CLIMB_OFF"){
             // climb off
-
-            console.log("CLIMB_OFF")
-
-            // PLAN:
-            // identify bridge - bridgeIndex
+            console.log("CLIMB_OFF");
+            this.climbOff(this.bridgeIndex);
             this.deleteBridge(this.bridgeIndex);
 
         } else {
@@ -309,8 +306,7 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
         }
     }
 
-    this.deleteBridge = function(index) {
-        console.log(arrayOfBridges, index);
+    this.climbOff = function(index){
         // loop through all ants in bridge
         arrayOfBridges[index].forEach(ant => {
             if (ant.state == actions.extend) {  // extending ant -> move
@@ -319,9 +315,11 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
                 ant.state = actions.dead;
             }
         });
+    }
 
+    this.deleteBridge = function(index) {
         // delete this bridge
-        arrayOfBridges[this.bridgeIndex] = [0];
+        arrayOfBridges[index] = [0];
     }
 
     this.navid = function() {
@@ -431,26 +429,6 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
         }
 
         return ant_img;
-    }
-
-    this.climbOff = function() {
-        // PLAN
-
-        // check if ant is in an extending state
-        // if yes, then return to moving state
-        if(this.state == actions.extend) {
-            while (this.direction == 'WEST'){   // go anywhere but west
-                this.direction = directions[Math.floor(Math.random()*4)];
-             }
-            this.state = actions.move;
-        }
-
-        // check if ant is in an climb_on state
-        // if yes, then change to dead state
-        if(this.state == actions.climb_on){
-            this.state = actions.dead;
-            console.log(this.state);
-        }
     }
 
 }
