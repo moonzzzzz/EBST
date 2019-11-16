@@ -299,6 +299,8 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
             this.climbOff(this.bridgeIndex);
             this.deleteBridge(this.bridgeIndex);
 
+            // ToDo: identified error - after a while, climb-off function becomes inactive (???)
+
         } else {
             console.log("ERROR");
         }
@@ -318,6 +320,7 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
     this.deleteBridge = function(index) {
         // delete this bridge
         arrayOfBridges[index] = [0];
+        console.log(index);
     }
 
     this.navid = function() {
