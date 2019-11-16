@@ -173,7 +173,6 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
         orderedSensors = this.orderSensorsByPriority();
 
         let firstApplicableSensor = this.getFirstApplicableSensor(orderedSensors);
-        // if(firstApplicableSensor != null && firstApplicableSensor.type == "TIME") {console.log("TIME");}
 
         if(firstApplicableSensor != null) {
             let nextAction = this.junction(firstApplicableSensor);
@@ -297,7 +296,6 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
 
         } else if(action.name == "CLIMB_OFF"){
             // climb off
-            console.log("CLIMB_OFF");
             this.climbOff(this.bridgeIndex);
             this.deleteBridge(this.bridgeIndex);
 
