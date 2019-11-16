@@ -115,9 +115,10 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
     let currentSensor;      // will be used in loopSensors
     let random, cummulative, temp; // used in junction
     let orderedSensors; // used in loopSensors function
-    let bridgeIndex;    // used between checkSensors and performAction functions
+    this.bridgeIndex;    // used between checkSensors and performAction functions
     this.startTime;
     this.currentTime;  // to be used for time sensor
+    this.bridge;
 
     this.getState = function() {
         return this.state;
@@ -229,7 +230,7 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
             for(l=0; l<arrayOfBridges.length; l++){
                 if(this.y <= arrayOfBridges[l][0].y + 3 && this.y >= arrayOfBridges[l][0].y - 3 && this.x <= referenceLine){     // conditions
                     // move onto junction
-                    bridgeIndex = l;
+                    this.bridgeIndex = l;
 
                     return true;
                 }
@@ -283,10 +284,10 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
         } else if(action.name == "CLIMB_ON"){
             // reposition ant appropriately
 
-            if (arrayOfBridges[bridgeIndex].length-1 < 5){            // if bridge incomplete, climb on
-                this.y = arrayOfBridges[bridgeIndex][arrayOfBridges[bridgeIndex].length-1].y;
-                this.x = arrayOfBridges[bridgeIndex][arrayOfBridges[bridgeIndex].length-1].x - 10;
-                arrayOfBridges[bridgeIndex].push(this);
+            if (arrayOfBridges[this.bridgeIndex].length-1 < 5){            // if bridge incomplete, climb on
+                this.y = arrayOfBridges[this.bridgeIndex][arrayOfBridges[this.bridgeIndex].length-1].y;
+                this.x = arrayOfBridges[this.bridgeIndex][arrayOfBridges[this.bridgeIndex].length-1].x - 10;
+                arrayOfBridges[this.bridgeIndex].push(this);
                 // Ask Dr Navid: is using bridgeIndex like this bad coding practice?
             } else {    // if bridge complete, go to other side
                 this.state = {name: "OTHER_SIDE"};
@@ -303,6 +304,8 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
             // delete that bridge
             // extending ant -> move
             // climb-on -> dead
+
+
         } else {
             console.log("ERROR");
         }
