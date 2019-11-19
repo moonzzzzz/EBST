@@ -163,6 +163,7 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
     }
 
     this.performAction = function(action) {
+        let previousState = this.state;
         this.state = action;
         if (action.name == "MOVE") {
             if(this.x <= referenceLine -10) {
@@ -194,7 +195,7 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
 
         } else if(action.name == "CLIMB_OFF"){
             // climb off
-            this.climbOff(this.bridgeIndex);
+            this.climbOff(previousState, this.bridgeIndex);
             this.deleteRestOfBridge(this.bridgeIndex);
 
         } else {
@@ -202,14 +203,14 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
         }
     }
 
-    this.climbOff = function(index){
+    this.climbOff = function(previousState, index){
         // loop through all ants in bridge
         arrayOfBridges[index].forEach(ant => {
-            if (ant.state == actions.climb_off) {  // extending ant -> climb off -> move
+            if (previousState == actions.extend) {  // extending ant -> climb off -> move
                 ant.direction = "EAST";
                 ant.state = actions.move;
                 ant.startTime = null;
-            } else if(ant.state == actions.climb_on) {  // climb-on -> dead
+            } else if(previousState == actions.climb_on) {  // climb-on -> dead
                 ant.state = actions.dead;
                 ant.startTime = null;
             }
@@ -219,20 +220,21 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
     }
 
     this.deleteRestOfBridge = function(index) {
-        // PLAN
-        // if fist ant
-        if() {
-            // delete this bridge
-            arrayOfBridges[index] = [0];
-        }
-
         // find this specific ant's index
         var antIndex = arrayOfBridges[index].indexOf(this);
+        // if fist ant
+        if(antIndex == 0) {
+            // delete this bridge
+            arrayOfBridges[index] = [0];
+        } else {
+            // splice rest of bridge
+            arrayOfBridges[index].splice(antIndex, arrayOfBridges[index].length-antIndex);
+            // need to fix this
 
-        // splice rest of bridge
-        arrayOfBridges[index].splice(antIndex, arrayOfBridges[index].length-antIndex+1);
+            // if it doesnt work, can try another method using pop()
+        }
 
-        console.log(antIndex, arrayOfBridges[index].length-antIndex+1);
+        console.log(antIndex, arrayOfBridges[index].length-antIndex);
     }
 
     this.navid = function() {
