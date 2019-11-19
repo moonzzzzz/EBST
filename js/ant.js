@@ -1,83 +1,8 @@
-var myGameArea = {
-    canvas : document.getElementById("canvas"),
-    start : function() {
-        this.context = this.canvas.getContext("2d");
-        this.frameNo = 0;
-        this.interval = setInterval(updateGameArea, 20);
-        },
-    clear : function() {
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    }
-}
-
-var myGamePiece;
-var myRiver;
 var myAnts = new Array();
-let numAnts = 10;
-let riverGeometry = {x: 100, y: 0, width: 40, height: 270, color: "blue"};
-let referenceLine = riverGeometry.x + riverGeometry.width;  // Can I remove reference line because it is the same as antMovementArea.x ??
-let antMovementArea = {x: referenceLine, y: 0, width: myGameArea.canvas.width - referenceLine, height: myGameArea.canvas.height};
-let otherSideArea = {x: 0, y: 0, width: referenceLine - riverGeometry.width, height: myGameArea.canvas.height};
-let randomMovementThreshold = 0.99;
+let numAnts = 100;
 let antGeometry = {width: 20, height: 28};  // ant facing north - by inspection (ant_img.width) for now
 let arrayOfBridges = new Array;   // used in ant object - 2D array
-
-// // Graph: create an array of objects for actions, with child sensors - also an array of objects
-let actions = {
-    move:{name: "MOVE", "sensors": [0, 1]},
-    extend:{name: "EXTEND", "sensors": [2]},
-    climb_on:{name: "CLIMB_ON", "sensors": []}, 
-    climb_off:{name: "CLIMB_OFF", "sensors": []}, 
-    dead:{name: "DEAD"}
-}
-
-let sensors = [{"id": 0, type: "EDGE", probs:[1, 0], actions:[actions.extend, actions.move]},
-    {"id": 1, type: "ANT_EXTENDING", probs:[.9, .1], actions:[actions.climb_on, actions.move]},
-    {"id": 2, type: "TIME", probs:[1, 0], actions:[actions.climb_off, actions.extend]}
-]
-
-let priorities = ["TIME", "EDGE", "ANT_EXTENDING"];
-
-function getActionSensor(index){
-    number = sensors.findIndex(x => x.id === index);
-    return sensors[number];
-}
-
-// // Update Behaviour Model
-
-function addAction() {
-    // name = read the drop down menu
-
-    mainAddAction(actionName);
-}
-
-function mainAddAction(name) {
-    // actual add action function
-}
-
-function updateBehaviourModel() {
-    sensors[0].probs = [0, 1];
-}
-
-
-
-// Create a timer
-
-let generalTime = 0;
-setInterval(function() {
-timer.innerHTML = "Time: " + generalTime++/100;
-}, 10);
-
-function startGame() {
-    myGamePiece = new river(riverGeometry, myGameArea.canvas.getContext('2d'));
-
-    // create ant objects
-    for(let i = 0; i < numAnts; i++){
-    myAnts[i] = new AntObj(antMovementArea, otherSideArea, antGeometry, randomMovementThreshold, myGameArea.canvas.getContext('2d'), actions, priorities);
-    }
-
-    myGameArea.start();
-}
+let randomMovementThreshold = 0.99;
 
 function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, actions, priorities) {
     this.x = movementArea.x + Math.floor(Math.random()*movementArea.width);
@@ -270,15 +195,11 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
         } else if(action.name == "CLIMB_OFF"){
             // climb off
             this.climbOff(this.bridgeIndex);
-            this.deleteBridge(this.bridgeIndex);
-
-            // ToDo: identified error - after a while, climb-off function becomes inactive (???)
+            this.deleteRestOfBridge(this.bridgeIndex);
 
         } else {
             console.log("ERROR");
         }
-
-        // console.log(this.state);
     }
 
     this.climbOff = function(index){
@@ -297,10 +218,21 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
         });
     }
 
-    this.deleteBridge = function(index) {
-        // delete this bridge
-        arrayOfBridges[index] = [0];
-        console.log(index);
+    this.deleteRestOfBridge = function(index) {
+        // PLAN
+        // if fist ant
+        if() {
+            // delete this bridge
+            arrayOfBridges[index] = [0];
+        }
+
+        // find this specific ant's index
+        var antIndex = arrayOfBridges[index].indexOf(this);
+
+        // splice rest of bridge
+        arrayOfBridges[index].splice(antIndex, arrayOfBridges[index].length-antIndex+1);
+
+        console.log(antIndex, arrayOfBridges[index].length-antIndex+1);
     }
 
     this.navid = function() {
@@ -419,30 +351,4 @@ function river(properties, ctx) {
         ctx.fillStyle = properties.color;
         ctx.fillRect(properties.x, properties.y, properties.width, properties.height);
     }
-}
-
-function updateGameArea() {
-    var x, height, gap, minHeight, maxHeight, minGap, maxGap;
-    myGameArea.clear();
-    myGameArea.frameNo += 1;
-    if (myGameArea.frameNo == 1 || everyinterval(150)) {
-        x = myGameArea.canvas.width;
-        minHeight = 20;
-        maxHeight = 200;
-        height = Math.floor(Math.random()*(maxHeight-minHeight+1)+minHeight);
-        minGap = 50;
-        maxGap = 200;
-        gap = Math.floor(Math.random()*(maxGap-minGap+1)+minGap);
-    }
-
-    myGamePiece.update();
-
-    for(let i = 0; i < numAnts; i++){
-        myAnts[i].update();
-    }
-}
-
-function everyinterval(n) {
-    if ((myGameArea.frameNo / n) % 1 == 0) {return true;}
-    return false;
 }
