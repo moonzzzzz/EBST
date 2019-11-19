@@ -12,10 +12,24 @@ canvas {
 <script type="text/javascript" src="js/gameEngine.js"></script>
 </head>
 <body onload="startGame()">
-    <p id="timer">Test.</p>
-    <br/>
-    <button onclick="timedText()">Climb Off in 5 seconds</button>
-    <p id="demo">Will wait 5 seconds, and then all ants will climb off.</p>
+    <div>
+        <p id="timer">Test.</p>
+        <br/>
+        <button onclick="addAction()">Add Action</button>
+        <input type="text" id="addAction" value="Add action...">
+        <br/>
+        <button onclick="addSensor()">Add Sensor</button>
+        <input type="text" id="addSensor" value="Add sensor...">
+        <br/>
+        <button onclick="joinSensor()">Join Sensor</button>
+        <input type="text" id="addAction" value="Add action...">
+        <br/>
+        <button onclick="increaseProb()">Increase Probability</button>
+        <input type="text" id="inceaseProb" value="Increase pron...">
+        <br/>
+        <button onclick="decreaseProb()">Decrease Probability</button>
+        <input type="text" id="decreaseProb" value="Decrease pron...">
+    </div>
 </body>
 </html>
 
