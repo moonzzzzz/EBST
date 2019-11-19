@@ -24,7 +24,7 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
 
     this.update = function() {
         ant_img = getAntImage(this.direction);
-         if(this.state != actions.dead) {ctx.drawImage(ant_img, this.x, this.y);}
+         if(this.state != actions.dead) {ctx.drawImage(ant_img, this.x, this.y);} else {this.x = 500; this.y = 500;}
 
         if(this.state.name == "MOVE") {
             this.move();
@@ -187,7 +187,8 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
                 this.y = arrayOfBridges[this.bridgeIndex][arrayOfBridges[this.bridgeIndex].length-1].y;
                 this.x = arrayOfBridges[this.bridgeIndex][arrayOfBridges[this.bridgeIndex].length-1].x - 10;
                 arrayOfBridges[this.bridgeIndex].push(this);
-                // Ask Dr Navid: is using bridgeIndex like this bad coding practice?
+                
+                // console.log(arrayOfBridges[this.bridgeIndex].length);
             } else {    // if bridge complete, go to other side
                 this.state = {name: "OTHER_SIDE"};
                 this.x = riverGeometry.x - antGeometry.width;
@@ -209,11 +210,10 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
             if (previousState == actions.extend) {  // extending ant -> climb off -> move
                 ant.direction = "EAST";
                 ant.state = actions.move;
-                ant.startTime = null;
             } else if(previousState == actions.climb_on) {  // climb-on -> dead
                 ant.state = actions.dead;
-                ant.startTime = null;
             }
+            ant.startTime = null;
             // ToDo: ants are never at this stage when climbing off
             // current functionality only works for extending ants
         });
@@ -221,20 +221,19 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
 
     this.deleteRestOfBridge = function(index) {
         // find this specific ant's index
-        var antIndex = arrayOfBridges[index].indexOf(this);
+        let antIndex = arrayOfBridges[index].indexOf(this);
         // if fist ant
         if(antIndex == 0) {
             // delete this bridge
             arrayOfBridges[index] = [0];
         } else {
-            // splice rest of bridge
-            arrayOfBridges[index].splice(antIndex, arrayOfBridges[index].length-antIndex);
-            // need to fix this
-
-            // if it doesnt work, can try another method using pop()
+            // remove reset of the bridge
+            for(i=0; i < arrayOfBridges[index].length-antIndex; i++){
+                arrayOfBridges[index].pop()
+            }
         }
 
-        console.log(antIndex, arrayOfBridges[index].length-antIndex);
+        console.log(arrayOfBridges[index].length, antIndex, arrayOfBridges[index].length-antIndex);
     }
 
     this.navid = function() {
