@@ -48,6 +48,8 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
 
             // randomise direction (with a probability)
             this.ranDir();
+        } else {    // if in extend of climb_on state
+            this.loopSensors();
         }
     }
 
@@ -76,17 +78,16 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
     }
 
     this.loopSensors = function() {
-
         orderedSensors = this.orderSensorsByPriority();
 
         let firstApplicableSensor = this.getFirstApplicableSensor(orderedSensors);
+        // if(firstApplicableSensor == sensors[2]) {console.log(firstApplicableSensor);}
 
         if(firstApplicableSensor != null) {
             let nextAction = this.junction(firstApplicableSensor);
 
             this.performAction(nextAction);
         }
-
     }
 
     this.getFirstApplicableSensor = function(sensorsList) {
@@ -224,9 +225,8 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
         } else if(previousState == actions.climb_on) {  // climbed_on ant -> climb_off -> dead
             this.state = actions.dead;
             this.deleteRestOfBridge(index);
-            console.log('now');
         }
-        
+        this.startTime = null;
 
         // loop through all ants in bridge
         // if(arrayOfBridges[index] != undefined){
@@ -246,7 +246,14 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
         // }
         // Bug: what if no ants in the bridge?
     }
+
     this.deleteBridge = function(index){
+        arrayOfBridges[index].forEach(ant => {
+            if(ant.state != actions.climb_on){
+                ant.state = actions.dead;
+            }
+        });
+
         arrayOfBridges[index] = [0];
     }
 
