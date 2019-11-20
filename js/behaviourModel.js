@@ -7,10 +7,12 @@ let actions = {
     dead:{name: "DEAD"}
 }
 
-let sensors = [{"id": 0, type: "EDGE", probs:[0.5, 0.5], actions:[actions.extend, actions.move]},
+let sensors = [{"id": 0, type: "EDGE", probs:[0.1, 0.9], actions:[actions.extend, actions.move]},
     {"id": 1, type: "ANT_EXTENDING", probs:[.9, .1], actions:[actions.climb_on, actions.move]},
-    {"id": 2, type: "TIME", probs:[0.5, 0.5], actions:[actions.climb_off, actions.extend]}
+    {"id": 2, type: "TIME", probs:[1, 0], actions:[actions.climb_off, actions.climb_on]}
 ]
+
+let timeToEndTime = 5;
 
 let priorities = ["TIME", "EDGE", "ANT_EXTENDING"];
 
@@ -20,5 +22,4 @@ function getActionSensor(index){
 }
 
 // ToDo - fix errors:
-// when time connected to climb-off half the ants extend at the river edge
-// the other half extend in their position
+// climb-off function stops ants in their place, and very slowly at that

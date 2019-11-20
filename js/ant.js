@@ -49,7 +49,6 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
             // randomise direction (with a probability)
             this.ranDir();
         }
-
     }
 
     this.move = function() {
@@ -138,7 +137,6 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
                 if(this.y <= arrayOfBridges[l][0].y + 3 && this.y >= arrayOfBridges[l][0].y - 3 && this.x <= referenceLine){     // conditions
                     // move onto junction
                     this.bridgeIndex = l;
-
                     return true;
                 }
             }
@@ -149,7 +147,8 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
                 this.currentTime = generalTime/100;
             }
 
-            if(this.currentTime - this.startTime >= 5) {
+            if(this.currentTime - this.startTime >= timeToEndTime) {
+                console.log('now2')
                 return true;
             }
         }
@@ -175,6 +174,7 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
     this.performAction = function(action) {
         let previousState = this.state;
         this.state = action;
+        // console.log(action.name);
         if (action.name == "MOVE") {
             if(this.x <= referenceLine - 10) {
                 this.hitRiver();
@@ -189,9 +189,7 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
             if(this.bridgeIndex == null) {this.bridgeIndex = arrayOfBridges.length-1;}   // for use in climb_off
 
             // perform extend
-            // this.x = referenceLine - 10;     // no need for this line, since the ants are already at this location and they must be able to extend anywhere 
             this.direction = 'WEST';
-            console.log(this.state, this.direction);
         } else if(action.name == "CLIMB_ON"){
             // reposition ant appropriately
 
@@ -209,42 +207,66 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
         } else if(action.name == "CLIMB_OFF"){
             // climb off
             this.climbOff(previousState, this.bridgeIndex);
-            this.deleteRestOfBridge(this.bridgeIndex);
+            this.deleteRestOfBridge(previousState, this.bridgeIndex);
         } else {
             console.log("ERROR");
         }
     }
 
     this.climbOff = function(previousState, index){
+        // will depend on its previous state
+        if(previousState == actions.move) { // moving ant -> climb_off -> move
+            this.state = actions.move;
+        } else if(previousState == actions.extend) {    // extending ant -> climb off -> move
+            this.direction = "EAST";
+            this.state = actions.move;
+            this.deleteBridge(index);
+        } else if(previousState == actions.climb_on) {  // climbed_on ant -> climb_off -> dead
+            this.state = actions.dead;
+            this.deleteRestOfBridge(index);
+            console.log('now');
+        }
+        
+
         // loop through all ants in bridge
-        arrayOfBridges[index].forEach(ant => {
-            if (previousState == actions.extend) {  // extending ant -> climb off -> move
-                ant.direction = "EAST";
-                ant.state = actions.move;
-            } else if(previousState == actions.climb_on) {  // climb-on -> dead
-                ant.state = actions.dead;
-            }
-            ant.startTime = null;
-            // ToDo: ants are never at this stage when climbing off
-            // current functionality only works for extending ants
-        });
+        // if(arrayOfBridges[index] != undefined){
+        //     arrayOfBridges[index].forEach(ant => {
+        //         if (previousState == actions.extend) {  // extending ant -> climb off -> move
+        //             ant.direction = "EAST";
+        //             ant.state = actions.move;
+        //         } else if(previousState == actions.climb_on) {  // climb-on -> dead
+        //             ant.state = actions.dead;
+        //         } else {
+        //             ant.state = actions.move;
+        //         }
+        //         ant.startTime = null;
+
+        //         console.log('now');
+        //     });
+        // }
+        // Bug: what if no ants in the bridge?
+    }
+    this.deleteBridge = function(index){
+        arrayOfBridges[index] = [0];
     }
 
     this.deleteRestOfBridge = function(index) {
-        // find this specific ant's index
-        let antIndex = arrayOfBridges[index].indexOf(this);
-        // if fist ant
-        if(antIndex == 0) {
-            // delete this bridge
-            arrayOfBridges[index] = [0];
-        } else {
-            // remove reset of the bridge
-            for(i=0; i < arrayOfBridges[index].length-antIndex; i++){
-                arrayOfBridges[index].pop()
-            }
+        if(arrayOfBridges[index] != undefined){
+            // find this specific ant's index
+            let antIndex = arrayOfBridges[index].indexOf(this);
+            // if fist ant
+            // if(antIndex == 0) {
+            //     // delete this bridge
+            //     arrayOfBridges[index] = [0];
+            // } else {
+                // remove reset of the bridge
+                for(i=0; i < arrayOfBridges[index].length-antIndex; i++){
+                    arrayOfBridges[index][antIndex].state = actions.dead;
+                    arrayOfBridges[index].pop()
+                }
+            // }
         }
-
-        console.log(arrayOfBridges[index].length, antIndex, arrayOfBridges[index].length-antIndex);
+        // console.log(arrayOfBridges[index].length, antIndex, arrayOfBridges[index].length-antIndex);
     }
 
     this.navid = function() {
