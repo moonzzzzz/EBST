@@ -1,6 +1,6 @@
 // // Graph: create an array of objects for actions, with child sensors - also an array of objects
 let actions = {
-    move:{name: "MOVE", "sensors": [0]},
+    move:{name: "MOVE", "sensors": [0, 1]},
     extend:{name: "EXTEND", "sensors": []},
     climb_on:{name: "CLIMB_ON", "sensors": [2]}, 
     climb_off:{name: "CLIMB_OFF", "sensors": []}, 
@@ -20,5 +20,5 @@ function getActionSensor(index){
 }
 
 // ToDo - fix errors:
-// when move is not connected to edge sensor, the ants stop sensing the edge of the river altogether
-// firstly, why do they not cross the river when edge is connected
+// when time connected to climb-off half the ants extend at the river edge
+// the other half extend in their position

@@ -189,7 +189,7 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
             if(this.bridgeIndex == null) {this.bridgeIndex = arrayOfBridges.length-1;}   // for use in climb_off
 
             // perform extend
-            this.x = referenceLine - 10;
+            // this.x = referenceLine - 10;     // no need for this line, since the ants are already at this location and they must be able to extend anywhere 
             this.direction = 'WEST';
             console.log(this.state, this.direction);
         } else if(action.name == "CLIMB_ON"){
