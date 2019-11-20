@@ -3,6 +3,7 @@ let numAnts = 100;
 let antGeometry = {width: 20, height: 28};  // ant facing north - by inspection (ant_img.width) for now
 let arrayOfBridges = new Array;   // used in ant object - 2D array
 let randomMovementThreshold = 0.99;
+let deadAntLocation = {x: 500, y:500};
 
 function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, actions, priorities) {
     this.x = movementArea.x + Math.floor(Math.random()*movementArea.width);
@@ -24,17 +25,32 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
 
     this.update = function() {
         ant_img = getAntImage(this.direction);
-         if(this.state != actions.dead) {ctx.drawImage(ant_img, this.x, this.y);} else {this.x = 500; this.y = 500;}
+         if(this.state != actions.dead) {ctx.drawImage(ant_img, this.x, this.y);} else {this.x = deadAntLocation.x; this.y = deadAntLocation.y;}    // mode dead ants out of the way
 
         if(this.state.name == "MOVE") {
             this.move();
+
+            // randomise direction (with a probability)
+            this.ranDir();
+
+            // go to sensors
+            this.loopSensors();
+
+            //check if walls/river is hit or a sensor has been activated
+            this.hitWall();
+            this.hitRiver();
+
         } else if(this.state.name == "OTHER_SIDE"){
             this.moveOnOtherSide();
+
+            //check if walls are hit on the other sdie
+            this.hitWallOtherSide();
+
+            // randomise direction (with a probability)
+            this.ranDir();
         }
 
-        // if(this.state == dead)
-        if(this.state.name != "OTHER_SIDE" && this.state != actions.dead) this.loopSensors();
-    } 
+    }
 
     this.move = function() {
             if(this.direction == 'NORTH'){
@@ -46,9 +62,6 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
             } else if (this.direction == 'WEST'){
                 this.x--;
             }
-
-            //check if walls/river is hit or a sensor has been activated
-            this.hitWall();
     }
 
     this.moveOnOtherSide = function() {
@@ -61,9 +74,6 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
         } else if (this.direction == 'WEST'){
             this.x--;
         }
-
-        //check if walls/river is hit or a sensor has been activated
-        this.hitWallOtherSide();
     }
 
     this.loopSensors = function() {
@@ -166,7 +176,7 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
         let previousState = this.state;
         this.state = action;
         if (action.name == "MOVE") {
-            if(this.x <= referenceLine -10) {
+            if(this.x <= referenceLine - 10) {
                 this.hitRiver();
             } else {
                 this.ranDir();
@@ -180,6 +190,8 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
 
             // perform extend
             this.x = referenceLine - 10;
+            this.direction = 'WEST';
+            console.log(this.state, this.direction);
         } else if(action.name == "CLIMB_ON"){
             // reposition ant appropriately
 
@@ -198,7 +210,6 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
             // climb off
             this.climbOff(previousState, this.bridgeIndex);
             this.deleteRestOfBridge(this.bridgeIndex);
-
         } else {
             console.log("ERROR");
         }
@@ -263,9 +274,11 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
 
     this.hitRiver = function() {
         // if ant hits the river, default is to go anywhere but WEST
+        if(this.x <= referenceLine - 10 && this.state == actions.move) {
             while (this.direction == "WEST"){
                 this.direction = directions[Math.floor(Math.random()*4)];
             }
+        }
     }
 
     this.hitWall = function() {
@@ -285,8 +298,6 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
                 this.direction = directions[Math.floor(Math.random()*4)];
              }
         }
-
-        this.ranDir();
     }
 
     this.hitWallOtherSide = function() {
@@ -311,8 +322,6 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
                 this.direction = directions[Math.floor(Math.random()*4)];
              }
         }
-
-        this.ranDir();
     }
 
     this.ranDir = function() {
