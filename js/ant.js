@@ -4,6 +4,8 @@ let antGeometry = {width: 20, height: 28};  // ant facing north - by inspection 
 let arrayOfBridges = new Array;   // used in ant object - 2D array
 let randomMovementThreshold = 0.99;
 let deadAntLocation = {x: 500, y:500};
+let timeToEndTime = 3;      // how many seconds for time sensor
+let lengthOfCompleteBridge = 6; // number of ants for complete bridge
 
 function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, actions, priorities) {
     this.x = movementArea.x + Math.floor(Math.random()*movementArea.width);
@@ -81,7 +83,6 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
         orderedSensors = this.orderSensorsByPriority();
 
         let firstApplicableSensor = this.getFirstApplicableSensor(orderedSensors);
-        // if(firstApplicableSensor == sensors[2]) {console.log(firstApplicableSensor);}
 
         if(firstApplicableSensor != null) {
             let nextAction = this.junction(firstApplicableSensor);
@@ -115,7 +116,6 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
 
         // order sensors according to priority
         priorities.forEach(priority => {
-            // console.log(this.state.sensors);
             this.state.sensors.forEach(currentSensor => {
                 if(priority == getActionSensor(currentSensor).type){
                     result.push(getActionSensor(currentSensor));
@@ -175,7 +175,6 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
     this.performAction = function(action) {
         let previousState = this.state;
         this.state = action;
-        // console.log(action.name);
         if (action.name == "MOVE") {
             if(this.x <= referenceLine - 10) {
                 this.hitRiver();
@@ -193,13 +192,10 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
             this.direction = 'WEST';
         } else if(action.name == "CLIMB_ON"){
             // reposition ant appropriately
-
-            if (arrayOfBridges[this.bridgeIndex].length-1 < 5){            // if bridge incomplete, climb on
+            if (arrayOfBridges[this.bridgeIndex].length < lengthOfCompleteBridge){            // if bridge incomplete, climb on
                 this.y = arrayOfBridges[this.bridgeIndex][arrayOfBridges[this.bridgeIndex].length-1].y;
                 this.x = arrayOfBridges[this.bridgeIndex][arrayOfBridges[this.bridgeIndex].length-1].x - 10;
                 arrayOfBridges[this.bridgeIndex].push(this);
-                
-                // console.log(arrayOfBridges[this.bridgeIndex].length);
             } else {    // if bridge complete, go to other side
                 this.state = {name: "OTHER_SIDE"};
                 this.x = riverGeometry.x - antGeometry.width;
@@ -208,7 +204,6 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
         } else if(action.name == "CLIMB_OFF"){
             // climb off
             this.climbOff(previousState, this.bridgeIndex);
-            // this.deleteRestOfBridge(previousState, this.bridgeIndex);
         } else {
             console.log("ERROR");
         }
@@ -223,60 +218,37 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
             this.state = actions.move;
             this.deleteBridge(index);
         } else if(previousState == actions.climb_on) {  // climbed_on ant -> climb_off -> dead
-            this.state = actions.dead;
+            // this.state = actions.dead;
             this.deleteRestOfBridge(index);
         }
         this.startTime = null;
-
-        // loop through all ants in bridge
-        // if(arrayOfBridges[index] != undefined){
-        //     arrayOfBridges[index].forEach(ant => {
-        //         if (previousState == actions.extend) {  // extending ant -> climb off -> move
-        //             ant.direction = "EAST";
-        //             ant.state = actions.move;
-        //         } else if(previousState == actions.climb_on) {  // climb-on -> dead
-        //             ant.state = actions.dead;
-        //         } else {
-        //             ant.state = actions.move;
-        //         }
-        //         ant.startTime = null;
-
-        //         console.log('now');
-        //     });
-        // }
-        // Bug: what if no ants in the bridge?
     }
 
-    this.deleteBridge = function(index){    //ToDo: not yet ideal
-        // arrayOfBridges[index].forEach(ant => {
-            // if(ant.state == actions.climb_on){
-        for(i=1; i<arrayOfBridges[index].length;i++){
+    this.deleteBridge = function(index){
+        for(i=1; i<arrayOfBridges[index].length;i++){   // starts are 1 so the extending ant is excluded
                 arrayOfBridges[index][i].state = actions.dead;
-                console.log(arrayOfBridges[index][i]);
         }
-            // }
-        // });
 
         arrayOfBridges[index] = [0];
     }
 
     this.deleteRestOfBridge = function(index) {
-        if(arrayOfBridges[index] != undefined){
-            // find this specific ant's index
-            let antIndex = arrayOfBridges[index].indexOf(this);
-            // if fist ant
-            // if(antIndex == 0) {
-            //     // delete this bridge
-            //     arrayOfBridges[index] = [0];
-            // } else {
-                // remove reset of the bridge
-                for(i=0; i < arrayOfBridges[index].length-antIndex; i++){
-                    arrayOfBridges[index][antIndex].state = actions.dead;
-                    arrayOfBridges[index].pop()
-                }
-            // }
+        let antIndex = arrayOfBridges[index].indexOf(this);
+
+        for(i=antIndex; i < arrayOfBridges[index].length; i++){
+            arrayOfBridges[index][i].state = actions.dead;
         }
-        // console.log(arrayOfBridges[index].length, antIndex, arrayOfBridges[index].length-antIndex);
+
+        // for(i=antIndex; i < arrayOfBridges[index].length; i++){
+        //     arrayOfBridges[index].pop();
+        //     console.log(i, antIndex, arrayOfBridges[index]);
+        // }
+
+        arrayOfBridges[index].splice(antIndex, arrayOfBridges[index].length-antIndex);
+
+        console.log(antIndex, arrayOfBridges[index]);
+        // ToDo: still getting to the other side even after pop()
+        // also, they dissapear into a vortex
     }
 
     this.navid = function() {
