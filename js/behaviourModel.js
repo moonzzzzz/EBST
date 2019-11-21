@@ -12,7 +12,7 @@ let sensors = [{"id": 0, type: "EDGE", probs:[0.1, 0.9], actions:[actions.extend
     {"id": 2, type: "TIME", probs:[1, 0], actions:[actions.climb_off, actions.extend]}
 ]
 
-let timeToEndTime = 2;
+let timeToEndTime = 5;
 
 let priorities = ["TIME", "EDGE", "ANT_EXTENDING"];
 

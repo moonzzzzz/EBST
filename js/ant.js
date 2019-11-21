@@ -251,8 +251,8 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
         // arrayOfBridges[index].forEach(ant => {
             // if(ant.state == actions.climb_on){
         for(i=1; i<arrayOfBridges[index].length;i++){
-                ant.state = actions.dead;
-                console.log(ant);
+                arrayOfBridges[index][i].state = actions.dead;
+                console.log(arrayOfBridges[index][i]);
         }
             // }
         // });
