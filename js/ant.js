@@ -115,6 +115,7 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
 
         // order sensors according to priority
         priorities.forEach(priority => {
+            // console.log(this.state.sensors);
             this.state.sensors.forEach(currentSensor => {
                 if(priority == getActionSensor(currentSensor).type){
                     result.push(getActionSensor(currentSensor));
@@ -149,7 +150,6 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
             }
 
             if(this.currentTime - this.startTime >= timeToEndTime) {
-                console.log('now2')
                 return true;
             }
         }
@@ -208,7 +208,7 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
         } else if(action.name == "CLIMB_OFF"){
             // climb off
             this.climbOff(previousState, this.bridgeIndex);
-            this.deleteRestOfBridge(previousState, this.bridgeIndex);
+            // this.deleteRestOfBridge(previousState, this.bridgeIndex);
         } else {
             console.log("ERROR");
         }
@@ -247,12 +247,15 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
         // Bug: what if no ants in the bridge?
     }
 
-    this.deleteBridge = function(index){
-        arrayOfBridges[index].forEach(ant => {
-            if(ant.state != actions.climb_on){
+    this.deleteBridge = function(index){    //ToDo: not yet ideal
+        // arrayOfBridges[index].forEach(ant => {
+            // if(ant.state == actions.climb_on){
+        for(i=1; i<arrayOfBridges[index].length;i++){
                 ant.state = actions.dead;
-            }
-        });
+                console.log(ant);
+        }
+            // }
+        // });
 
         arrayOfBridges[index] = [0];
     }

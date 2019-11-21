@@ -4,7 +4,7 @@ let actions = {
     extend:{name: "EXTEND", "sensors": [2]},
     climb_on:{name: "CLIMB_ON", "sensors": []}, 
     climb_off:{name: "CLIMB_OFF", "sensors": []}, 
-    dead:{name: "DEAD"}
+    dead:{name: "DEAD", "sensors": []}
 }
 
 let sensors = [{"id": 0, type: "EDGE", probs:[0.1, 0.9], actions:[actions.extend, actions.move]},
@@ -12,7 +12,7 @@ let sensors = [{"id": 0, type: "EDGE", probs:[0.1, 0.9], actions:[actions.extend
     {"id": 2, type: "TIME", probs:[1, 0], actions:[actions.climb_off, actions.extend]}
 ]
 
-let timeToEndTime = 5;
+let timeToEndTime = 2;
 
 let priorities = ["TIME", "EDGE", "ANT_EXTENDING"];
 
