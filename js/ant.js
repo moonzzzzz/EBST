@@ -175,38 +175,40 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
     this.performAction = function(action) {
         let previousState = this.state;
         this.state = action;
-        if (action.name == "MOVE") {
-            if(this.x <= referenceLine - 10) {
-                this.hitRiver();
+        if(this.state != previousState){
+            if (action.name == "MOVE") {
+                if(this.x <= referenceLine - 10) {
+                    this.hitRiver();
+                } else {
+                    this.ranDir();
+                }
+            } else if(action.name == "EXTEND"){
+                // create a new bridge
+                let bridge = new Array();
+                bridge.push(this);
+                arrayOfBridges.push(bridge);
+                if(this.bridgeIndex == null) {this.bridgeIndex = arrayOfBridges.length-1;}   // for use in climb_off
+
+                // perform extend
+                this.direction = 'WEST';
+            } else if(action.name == "CLIMB_ON"){
+                // reposition ant appropriately
+                if (arrayOfBridges[this.bridgeIndex].length < lengthOfCompleteBridge){            // if bridge incomplete, climb on
+                    this.y = arrayOfBridges[this.bridgeIndex][arrayOfBridges[this.bridgeIndex].length-1].y;
+                    this.x = arrayOfBridges[this.bridgeIndex][arrayOfBridges[this.bridgeIndex].length-1].x - 10;
+                    arrayOfBridges[this.bridgeIndex].push(this);
+                } else {    // if bridge complete, go to other side
+                    this.state = {name: "OTHER_SIDE"};
+                    this.x = riverGeometry.x - antGeometry.width;
+                }
+
+            } else if(action.name == "CLIMB_OFF"){
+                // climb off
+                this.climbOff(previousState, this.bridgeIndex);
             } else {
-                this.ranDir();
+                console.log("ERROR");
             }
-        } else if(action.name == "EXTEND"){
-            // create a new bridge
-            let bridge = new Array();
-            bridge.push(this);
-            arrayOfBridges.push(bridge);
-            if(this.bridgeIndex == null) {this.bridgeIndex = arrayOfBridges.length-1;}   // for use in climb_off
-
-            // perform extend
-            this.direction = 'WEST';
-        } else if(action.name == "CLIMB_ON"){
-            // reposition ant appropriately
-            if (arrayOfBridges[this.bridgeIndex].length < lengthOfCompleteBridge){            // if bridge incomplete, climb on
-                this.y = arrayOfBridges[this.bridgeIndex][arrayOfBridges[this.bridgeIndex].length-1].y;
-                this.x = arrayOfBridges[this.bridgeIndex][arrayOfBridges[this.bridgeIndex].length-1].x - 10;
-                arrayOfBridges[this.bridgeIndex].push(this);
-            } else {    // if bridge complete, go to other side
-                this.state = {name: "OTHER_SIDE"};
-                this.x = riverGeometry.x - antGeometry.width;
-            }
-
-        } else if(action.name == "CLIMB_OFF"){
-            // climb off
-            this.climbOff(previousState, this.bridgeIndex);
-        } else {
-            console.log("ERROR");
-        }
+        }   
     }
 
     this.climbOff = function(previousState, index){
@@ -239,16 +241,8 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
             arrayOfBridges[index][i].state = actions.dead;
         }
 
-        // for(i=antIndex; i < arrayOfBridges[index].length; i++){
-        //     arrayOfBridges[index].pop();
-        //     console.log(i, antIndex, arrayOfBridges[index]);
-        // }
-
         arrayOfBridges[index].splice(antIndex, arrayOfBridges[index].length-antIndex);
-
         console.log(antIndex, arrayOfBridges[index]);
-        // ToDo: still getting to the other side even after pop()
-        // also, they dissapear into a vortex
     }
 
     this.navid = function() {
