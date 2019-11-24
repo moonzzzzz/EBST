@@ -9,7 +9,7 @@ let actions = {
 
 let sensors = [{"id": 0, type: "EDGE", probs:[0.2, 0.8], actions:[actions.extend, actions.move]},
     {"id": 1, type: "ANT_EXTENDING", probs:[.9, .1], actions:[actions.climb_on, actions.move]},
-    {"id": 2, type: "TIME", probs:[0.1, 0.9], actions:[actions.climb_off, actions.extend]},
+    {"id": 2, type: "TIME", probs:[0.05, 0.95], actions:[actions.climb_off, actions.extend]},
     {"id": 3, type: "TIME", probs:[0.5, 0.5], actions:[actions.climb_off, actions.climb_on]}
 ]
 

@@ -12,14 +12,19 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
     this.y = movementArea.y + Math.floor(Math.random()*movementArea.height);
     let directions = ["NORTH", "SOUTH", "EAST", "WEST"];
     this.direction = directions[Math.floor(Math.random()*4)];
-    this.state = actions.move;
-    let currentSensor;      // will be used in loopSensors
-    let random, cummulative, temp; // used in junction
-    let orderedSensors; // used in loopSensors function
-    this.bridgeIndex;    // used between checkSensors and performAction functions
-    this.startTime;
-    this.currentTime;  // to be used for time sensor
-    this.bridge;
+
+    this.reset = function() {
+        this.state = actions.move;
+        let currentSensor;      // will be used in loopSensors
+        let random, cummulative, temp; // used in junction
+        let orderedSensors; // used in loopSensors function
+        this.bridgeIndex;    // used between checkSensors and performAction functions
+        this.startTime;
+        this.currentTime;  // to be used for time sensor
+        this.bridge;
+    }
+
+    this.reset();
 
     this.getState = function() {
         return this.state;
@@ -204,45 +209,44 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
 
             } else if(action.name == "CLIMB_OFF"){
                 // climb off
-                this.climbOff(previousState, this.bridgeIndex);
+                let antIndex = arrayOfBridges[this.bridgeIndex].indexOf(this);
+                this.climbOff(previousState, antIndex, this.bridgeIndex);
             } else {
                 console.log("ERROR");
             }
         }   
     }
 
-    this.climbOff = function(previousState, index){
+    this.climbOff = function(previousState, antIndex, bridgeIndex){
         // will depend on its previous state
         if(previousState == actions.move) { // moving ant -> climb_off -> move
             this.state = actions.move;
-        } else if(previousState == actions.extend) {    // extending ant -> climb off -> move
+        } else if(previousState == actions.extend && antIndex == 0) {    // extending ant -> climb off -> move
             this.direction = "EAST";
             this.state = actions.move;
-            this.deleteBridge(index);
-        } else if(previousState == actions.climb_on) {  // climbed_on ant -> climb_off -> dead
+            this.deleteBridge(bridgeIndex);
+            this.reset();
+        } else if(previousState == actions.climb_on && antIndex != 0) {  // climbed_on ant -> climb_off -> dead
             // this.state = actions.dead;
-            this.deleteRestOfBridge(index);
+            this.deleteRestOfBridge(antIndex, bridgeIndex);
         }
-        this.startTime = null;
     }
 
-    this.deleteBridge = function(index){
-        for(i=1; i<arrayOfBridges[index].length;i++){   // starts are 1 so the extending ant is excluded
-                arrayOfBridges[index][i].state = actions.dead;
+    this.deleteBridge = function(bridgeIndex){
+        for(i=1; i<arrayOfBridges[bridgeIndex].length;i++){   // starts are 1 so the extending ant is excluded
+                arrayOfBridges[bridgeIndex][i].state = actions.dead;
         }
 
-        arrayOfBridges[index] = [0];
+        arrayOfBridges[bridgeIndex] = [0];
     }
 
-    this.deleteRestOfBridge = function(index) {
-        let antIndex = arrayOfBridges[index].indexOf(this);
-
-        for(i=antIndex; i < arrayOfBridges[index].length; i++){
-            arrayOfBridges[index][i].state = actions.dead;
+    this.deleteRestOfBridge = function(antIndex, bridgeIndex) {
+        for(i=antIndex; i < arrayOfBridges[bridgeIndex].length; i++){
+            arrayOfBridges[bridgeIndex][i].state = actions.dead;
         }
 
-        arrayOfBridges[index].splice(antIndex, arrayOfBridges[index].length-antIndex);
-        console.log(antIndex, arrayOfBridges[index]);
+        arrayOfBridges[bridgeIndex].splice(antIndex);   // from this index to the end of the array
+        console.log(antIndex, arrayOfBridges[bridgeIndex]);
     }
 
     this.navid = function() {
