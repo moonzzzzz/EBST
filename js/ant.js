@@ -4,7 +4,6 @@ let antGeometry = {width: 20, height: 28};  // ant facing north - by inspection 
 let arrayOfBridges = new Array;   // used in ant object - 2D array
 let randomMovementThreshold = 0.99;
 let deadAntLocation = {x: 500, y:500};
-let timeToEndTime = 3;      // how many seconds for time sensor
 let lengthOfCompleteBridge = 6; // number of ants for complete bridge
 
 function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, actions, priorities) {
@@ -12,16 +11,17 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
     this.y = movementArea.y + Math.floor(Math.random()*movementArea.height);
     let directions = ["NORTH", "SOUTH", "EAST", "WEST"];
     this.direction = directions[Math.floor(Math.random()*4)];
+    let currentSensor;      // will be used in loopSensors
+    let random, cummulative, temp; // used in junction
+    let orderedSensors; // used in loopSensors function
 
     this.reset = function() {
         this.state = actions.move;
-        let currentSensor;      // will be used in loopSensors
-        let random, cummulative, temp; // used in junction
-        let orderedSensors; // used in loopSensors function
         this.bridgeIndex;    // used between checkSensors and performAction functions
-        this.startTime;
-        this.currentTime;  // to be used for time sensor
+        this.startTime = null;
+        this.currentTime = null;  // to be used for time sensor
         this.bridge;
+        this.timeSensorAttempted = false;
     }
 
     this.reset();
@@ -148,14 +148,17 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
                 }
             }
         } else if(sensor.type == "TIME"){
-            if(this.startTime == null) {    // check if time has already started
-                this.startTime = generalTime/100;
-            } else {
-                this.currentTime = generalTime/100;
-            }
+            if(!this.timeSensorAttempted){
+                if(this.startTime == null) {    // check if time has already started
+                    this.startTime = generalTime/100;
+                } else {
+                    this.currentTime = generalTime/100;
+                }
 
-            if(this.currentTime - this.startTime >= timeToEndTime) {
-                return true;
+                if(this.currentTime - this.startTime >= timeToEndTime) {    // ToDo: for the time sensor, this keeps repeating until true
+                    if(!timeSensorRepeat) {this.timeSensorAttempted = true;} else {this.startTime = null;}
+                    return true;
+                }
             }
         }
 
@@ -171,6 +174,7 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
             temp = cummulative;
             cummulative += sensor.probs[k];
             if(random < cummulative && random > temp){
+                if(sensor.type == "TIME"){console.log(random, cummulative, k);}
                 // perform action in position k
                 return sensor.actions[k];
             }
