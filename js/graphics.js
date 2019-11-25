@@ -12,7 +12,7 @@ var myGameArea = {
 
 var myGamePiece;
 var myRiver;
-let riverGeometry = {x: 100, y: 0, width: 40, height: 270, color: "blue"};
+let riverGeometry = {x: 100, y: 0, width: 40, height: myGameArea.canvas.height, color: "blue"};
 let referenceLine = riverGeometry.x + riverGeometry.width;  // Can I remove reference line because it is the same as antMovementArea.x ??
 let antMovementArea = {x: referenceLine, y: 0, width: myGameArea.canvas.width - referenceLine, height: myGameArea.canvas.height};
 let otherSideArea = {x: 0, y: 0, width: referenceLine - riverGeometry.width, height: myGameArea.canvas.height};
@@ -28,7 +28,7 @@ function startGame() {
 
     // create ant objects
     for(let i = 0; i < numAnts; i++){
-    myAnts[i] = new AntObj(antMovementArea, otherSideArea, antGeometry, randomMovementThreshold, myGameArea.canvas.getContext('2d'), actions, priorities);
+    myAnts[i] = new AntObj(i,antMovementArea, otherSideArea, antGeometry, randomMovementThreshold, myGameArea.canvas.getContext('2d'), actions, priorities);
     }
 
     myGameArea.start();

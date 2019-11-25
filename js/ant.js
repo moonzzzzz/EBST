@@ -6,7 +6,9 @@ let randomMovementThreshold = 0.99;
 let deadAntLocation = {x: 500, y:500};
 let lengthOfCompleteBridge = 6; // number of ants for complete bridge
 
-function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, actions, priorities) {
+// ToDo: click on ant, and that ant will turn red shadow
+
+function AntObj(antID,movementArea, otherSideArea, antGeometry, threshold, ctx, actions, priorities) {
     this.x = movementArea.x + Math.floor(Math.random()*movementArea.width);
     this.y = movementArea.y + Math.floor(Math.random()*movementArea.height);
     let directions = ["NORTH", "SOUTH", "EAST", "WEST"];
@@ -14,6 +16,8 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
     let currentSensor;      // will be used in loopSensors
     let random, cummulative, temp; // used in junction
     let orderedSensors; // used in loopSensors function
+    this.tracking = false;
+    if(antID == 0){this.tracking = true;}
 
     this.reset = function() {
         this.state = actions.move;
@@ -31,7 +35,7 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
     }
 
     this.update = function() {
-        ant_img = getAntImage(this.direction);
+        ant_img = getAntImage(this.direction, this.tracking);
          if(this.state != actions.dead) {ctx.drawImage(ant_img, this.x, this.y);} else {this.x = deadAntLocation.x; this.y = deadAntLocation.y;}    // mode dead ants out of the way
 
         if(this.state.name == "MOVE") {
@@ -91,6 +95,8 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
 
         if(firstApplicableSensor != null) {
             let nextAction = this.junction(firstApplicableSensor);
+
+            // if(this.tracking){console.log(nextAction);}
 
             this.performAction(nextAction);
         }
@@ -155,7 +161,7 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
                     this.currentTime = generalTime/100;
                 }
 
-                if(this.currentTime - this.startTime >= timeToEndTime) {    // ToDo: for the time sensor, this keeps repeating until true
+                if(this.currentTime - this.startTime >= timeToEndTime) {
                     if(!timeSensorRepeat) {this.timeSensorAttempted = true;} else {this.startTime = null;}
                     return true;
                 }
@@ -174,7 +180,6 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
             temp = cummulative;
             cummulative += sensor.probs[k];
             if(random < cummulative && random > temp){
-                if(sensor.type == "TIME"){console.log(random, cummulative, k);}
                 // perform action in position k
                 return sensor.actions[k];
             }
@@ -218,6 +223,7 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
             } else {
                 console.log("ERROR");
             }
+            if(this.tracking){console.log(this.state);}
         }   
     }
 
@@ -250,7 +256,7 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
         }
 
         arrayOfBridges[bridgeIndex].splice(antIndex);   // from this index to the end of the array
-        console.log(antIndex, arrayOfBridges[bridgeIndex]);
+        // console.log(antIndex, arrayOfBridges[bridgeIndex]);
     }
 
     this.navid = function() {
@@ -336,25 +342,29 @@ function AntObj(movementArea, otherSideArea, antGeometry, threshold, ctx, action
         }
     }
 
-    function getAntImage(direction) {
+    function getAntImage(direction, tracking) {
         let ant_img = new Image();
     
-        // image direction will be relative to ants' (Don't understand)
-        if(direction == "NORTH"){
-            // refNorth = null;
-            // if (refNorth == null){
-            //     ant_img.src = '../ant_imgs/antNorth.png';
-            //     // resize
-            // }
-            // else return refNorth.copy()
-
-            ant_img.src = '../ant_imgs/antNorth.png';
-        } else if(direction == "SOUTH"){
-            ant_img.src = '../ant_imgs/antSouth.png';
-        } else if(direction == "EAST"){
-            ant_img.src = '../ant_imgs/antEast.png';
-        } else if(direction == "WEST"){
-            ant_img.src = '../ant_imgs/antWest.png';
+        if(tracking == true){
+            if(direction == "NORTH"){
+                ant_img.src = '../ant_imgs/antNorthRed.jpg';
+            } else if(direction == "SOUTH"){
+                ant_img.src = '../ant_imgs/antSouthRed.jpg';
+            } else if(direction == "EAST"){
+                ant_img.src = '../ant_imgs/antEastRed.jpeg';
+            } else if(direction == "WEST"){
+                ant_img.src = '../ant_imgs/antWestRed.jpg';
+            }
+        } else {
+            if(direction == "NORTH"){
+                ant_img.src = '../ant_imgs/antNorth.png';
+            } else if(direction == "SOUTH"){
+                ant_img.src = '../ant_imgs/antSouth.png';
+            } else if(direction == "EAST"){
+                ant_img.src = '../ant_imgs/antEast.png';
+            } else if(direction == "WEST"){
+                ant_img.src = '../ant_imgs/antWest.png';
+            }
         }
 
         return ant_img;
