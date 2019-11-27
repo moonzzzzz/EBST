@@ -66,25 +66,25 @@ function AntObj(antID,movementArea, otherSideArea, antGeometry, threshold, ctx, 
 
     this.move = function() {
             if(this.direction == 'NORTH'){
-                this.y--;
+                this.y-=moveRate;
             } else if (this.direction == 'SOUTH'){
-                this.y++;
+                this.y+=moveRate;
             } else if (this.direction == 'EAST'){
-                this.x++;
+                this.x+=moveRate;
             } else if (this.direction == 'WEST'){
-                this.x--;
+                this.x-=moveRate;
             }
     }
 
     this.moveOnOtherSide = function() {
         if(this.direction == 'NORTH'){
-            this.y--;
+            this.y-=moveRate;
         } else if (this.direction == 'SOUTH'){
-            this.y++;
+            this.y+=moveRate;
         } else if (this.direction == 'EAST'){
-            this.x++;
+            this.x+=moveRate;
         } else if (this.direction == 'WEST'){
-            this.x--;
+            this.x-=moveRate;
         }
     }
 

@@ -23,7 +23,7 @@ function getActionSensor(index){
 let timeToEndTime = 10;      // how many seconds for time sensor
 let timeSensorRepeat = false;
 let antTrackingOn = true;   // ant with red shadow, prints state once action is performed
-let timeRate = 5;   // from 1 to 10, speed up and slow down time
+let moveRate = 10;   // from 1 to 10, speed up and slow down movement (making move function steps longer/shorter)
 
 // ToDo - fix errors:
 // error when time sensor added to climb_on sensor
