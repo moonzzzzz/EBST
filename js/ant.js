@@ -17,7 +17,7 @@ function AntObj(antID,movementArea, otherSideArea, antGeometry, threshold, ctx, 
     let random, cummulative, temp; // used in junction
     let orderedSensors; // used in loopSensors function
     this.tracking = false;
-    if(antID == 0){this.tracking = true;}
+    if(antTrackingOn && antID == 0){this.tracking = true;}
 
     this.reset = function() {
         this.state = actions.move;
