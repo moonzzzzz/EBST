@@ -20,7 +20,7 @@ canvas {
         <p id="timer">Test.</p>
         <br/>
         <button onclick="addAction()">Add Action</button>
-            <select name="actions">
+            <select id="adding-action" name="actions">
               <option value="move">Move</option>
               <option value="extend">Extend</option>
               <option value="climb-on">Climb On</option>
@@ -28,7 +28,7 @@ canvas {
             </select>
         <br/>
         <button onclick="addSensor()">Add Sensor</button>
-        <select name="actions">
+        <select id="adding-sensors" name="actions">
             <option value="move">Move</option>
             <option value="extend">Extend</option>
             <option value="climb-on">Climb On</option>
@@ -39,10 +39,10 @@ canvas {
             <option value="ant-extending">Ant-Extending</option>
             <option value="time">Time</option>
           </select>
-          <!-- How does it know which action? Must have flexible  -->
+          <!-- How does it know which action? Must have flexible and include id's -->
         <br/>
         <button onclick="joinSensor()">Join Sensor</button>
-        <select name="sensors">
+        <select name="join-sensors">
             <option value="edge">Edge</option>
             <option value="ant-extending">Ant-Extending</option>
             <option value="time">Time</option>
@@ -63,12 +63,12 @@ canvas {
         <input type="text" id="inceaseProb" value="Increase pron...">
         <br/>
         <button onclick="decreaseProb()">Decrease Probability</button>
-        <input type="text" id="decreaseProb" value="Decrease pron...">
         <select name="sensors">
             <option value="edge">Edge</option>
             <option value="ant-extending">Ant-Extending</option>
             <option value="time">Time</option>
         </select>
+        <input type="text" id="decreaseProb" value="Decrease pron...">
     </div>
 </body>
 </html>
