@@ -3,19 +3,26 @@
 function addAction() {
     // name = read the drop down menu
 
-    actionName = document.getElementById("adding-action").innerHTML;
-    mainAddAction(actionName);
+    let action = document.getElementById("add-action-actions");
+    mainAddAction(action);
 }
 
-function mainAddAction(name) {
+function mainAddAction(action) {
     // actual add action function
-    // should be a drop down list of 4 actions
+
+    // if first element, then delete fill option
+    let sensorActionsList = document.getElementById("add-sensor-actions");
+    let fillOption = sensorActionsList.options[0].value;  // fist element - fill
+    if(fillOption == "fill"){
+        sensorActionsList.removeChild(sensorActionsList.childNodes[0]);
+    }
+
 
     var node = document.createElement("option");
-    var textnode = document.createTextNode("Water");
+    var textnode = document.createTextNode(action.options[action.selectedIndex].text);
     node.appendChild(textnode);
-    document.getElementById("adding-sensors").appendChild(node);
-    console.log(name)
+    document.getElementById("add-sensor-actions").appendChild(node);
+    // console.log(action.options[action.selectedIndex].text);
 }
 
 function updateBehaviourModel() {

@@ -20,7 +20,7 @@ canvas {
         <p id="timer">Test.</p>
         <br/>
         <button onclick="addAction()">Add Action</button>
-            <select id="adding-action" name="actions">
+            <select id="add-action-actions" name="actions">
               <option value="move">Move</option>
               <option value="extend">Extend</option>
               <option value="climb-on">Climb On</option>
@@ -28,26 +28,23 @@ canvas {
             </select>
         <br/>
         <button onclick="addSensor()">Add Sensor</button>
-        <select id="adding-sensors" name="actions">
-            <option value="move">Move</option>
-            <option value="extend">Extend</option>
-            <option value="climb-on">Climb On</option>
-            <option value="climb-off">Climb Off</option>
+        <select id="add-sensor-actions" name="actions">
+            <option value="fill">Add actions</option>
           </select>
-        <select name="sensors">
+        <select id="add-sensor-sensors" name="sensors">
             <option value="edge">Edge</option>
             <option value="ant-extending">Ant-Extending</option>
             <option value="time">Time</option>
           </select>
           <!-- How does it know which action? Must have flexible and include id's -->
         <br/>
-        <button onclick="joinSensor()">Join Sensor</button>
-        <select name="join-sensors">
+        <button onclick="connectSensor()">Connect Sensor</button>
+        <select name="connect-sensor-sensors">
             <option value="edge">Edge</option>
             <option value="ant-extending">Ant-Extending</option>
             <option value="time">Time</option>
           </select>
-          <select name="actions">
+          <select id="connect-sensor-actions" name="actions">
             <option value="move">Move</option>
             <option value="extend">Extend</option>
             <option value="climb-on">Climb On</option>
@@ -55,23 +52,19 @@ canvas {
           </select>
         <br/>
         <button onclick="increaseProb()">Increase Probability</button>
-        <select name="sensors">
+        <select id="increase-prob-connections" name="sensors">
             <option value="edge">Edge</option>
             <option value="ant-extending">Ant-Extending</option>
             <option value="time">Time</option>
           </select>
-        <input type="text" id="inceaseProb" value="Increase pron...">
         <br/>
         <button onclick="decreaseProb()">Decrease Probability</button>
-        <select name="sensors">
+        <select id="decrease-prob-connections" name="sensors">
             <option value="edge">Edge</option>
             <option value="ant-extending">Ant-Extending</option>
             <option value="time">Time</option>
         </select>
-        <input type="text" id="decreaseProb" value="Decrease pron...">
     </div>
 </body>
 </html>
-
-
 
