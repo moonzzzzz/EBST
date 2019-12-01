@@ -7,6 +7,7 @@ canvas {
     border:1px solid #d3d3d3;
     background-color: #f1f1f1;
 }
+
 </style>
 <canvas id="canvas" width="480" height="270"></canvas>  <!-- change to bigger when needed (960 and 540)-->
 <script type="text/javascript" src="js/graphics.js"></script>
@@ -19,19 +20,55 @@ canvas {
         <p id="timer">Test.</p>
         <br/>
         <button onclick="addAction()">Add Action</button>
-        <input type="text" id="addAction" value="Add action...">
+            <select name="actions">
+              <option value="move">Move</option>
+              <option value="extend">Extend</option>
+              <option value="climb-on">Climb On</option>
+              <option value="climb-off">Climb Off</option>
+            </select>
         <br/>
         <button onclick="addSensor()">Add Sensor</button>
-        <input type="text" id="addSensor" value="Add sensor...">
+        <select name="actions">
+            <option value="move">Move</option>
+            <option value="extend">Extend</option>
+            <option value="climb-on">Climb On</option>
+            <option value="climb-off">Climb Off</option>
+          </select>
+        <select name="sensors">
+            <option value="edge">Edge</option>
+            <option value="ant-extending">Ant-Extending</option>
+            <option value="time">Time</option>
+          </select>
+          <!-- How does it know which action? Must have flexible  -->
         <br/>
         <button onclick="joinSensor()">Join Sensor</button>
-        <input type="text" id="addAction" value="Add action...">
+        <select name="sensors">
+            <option value="edge">Edge</option>
+            <option value="ant-extending">Ant-Extending</option>
+            <option value="time">Time</option>
+          </select>
+          <select name="actions">
+            <option value="move">Move</option>
+            <option value="extend">Extend</option>
+            <option value="climb-on">Climb On</option>
+            <option value="climb-off">Climb Off</option>
+          </select>
         <br/>
         <button onclick="increaseProb()">Increase Probability</button>
+        <select name="sensors">
+            <option value="edge">Edge</option>
+            <option value="ant-extending">Ant-Extending</option>
+            <option value="time">Time</option>
+          </select>
         <input type="text" id="inceaseProb" value="Increase pron...">
         <br/>
         <button onclick="decreaseProb()">Decrease Probability</button>
         <input type="text" id="decreaseProb" value="Decrease pron...">
+        <select name="sensors">
+            <option value="edge">Edge</option>
+            <option value="ant-extending">Ant-Extending</option>
+            <option value="time">Time</option>
+        </select>
     </div>
 </body>
 </html>

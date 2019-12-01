@@ -8,6 +8,7 @@ function addAction() {
 
 function mainAddAction(name) {
     // actual add action function
+    // should be a drop down list of 4 actions
 }
 
 function updateBehaviourModel() {
