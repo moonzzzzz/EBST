@@ -39,16 +39,11 @@ canvas {
           <!-- How does it know which action? Must have flexible and include id's -->
         <br/>
         <button onclick="connectSensor()">Connect Sensor</button>
-        <select name="connect-sensor-sensors">
-            <option value="edge">Edge</option>
-            <option value="ant-extending">Ant-Extending</option>
-            <option value="time">Time</option>
+        <select id="connect-sensor-sensors">
+            <option value="fill">Add sensors</option>
           </select>
           <select id="connect-sensor-actions" name="actions">
-            <option value="move">Move</option>
-            <option value="extend">Extend</option>
-            <option value="climb-on">Climb On</option>
-            <option value="climb-off">Climb Off</option>
+            <option value="fill">Add actions</option>
           </select>
         <br/>
         <button onclick="increaseProb()">Increase Probability</button>
