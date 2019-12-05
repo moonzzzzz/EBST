@@ -18,15 +18,6 @@ function connectSensor() {
 function mainAddAction(action) {
     // actual add action function: adds the item to the appropriate list and to the behaviour model
 
-    // if first element, then delete fill option
-    // let sensorActionsList = document.getElementById("add-sensor-actions");
-    // let fillOption = sensorActionsList.options[0].value;  // fist element - fill
-    // if(fillOption == "fill"){
-    //     sensorActionsList.removeChild(sensorActionsList.childNodes[0]); // not removing
-    //     console.log("removing");
-    // }
-    // ^^ can maybe do without this code, would be good enough
-
     // adding to the add-sensor-actions list
     var node = document.createElement("option");
     var textnode = document.createTextNode(action.options[action.selectedIndex].text);
@@ -58,7 +49,7 @@ function mainAddSensor(action, sensor) {
     let newId = sensors.length;     // one greater than last id
     let newType = sensor.options[sensor.selectedIndex].text.toUpperCase();
     let newProbs = [1];  // loop back to the initial action
-    let newActions;
+    let newActions; // to be filled below
 
     // add the new sensor to the action
     let actionName = action.options[action.selectedIndex].text.toLowerCase();
