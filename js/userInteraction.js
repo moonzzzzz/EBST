@@ -12,7 +12,7 @@ function addSensor() {
 }
 
 function connectSensor() {
-    let sensor = document.getElementById("connect-sensor-sensors");
+    let sensor = document.getElementById("connect-sensor-sensors"); // must be connection
     let action = document.getElementById("connect-sensor-actions");
     mainConnectSensor(sensor, action);
 }
@@ -77,43 +77,49 @@ function mainAddSensor(action, sensor) {
 }
 
 function mainConnectSensor(sensor, action) {
-// actual connect sensor function: adds the item to the actions list (within the sensor) in the behaviour model
+    // actual connect sensor function: adds the item to the actions list (within the sensor) in the behaviour model
 
     // adding to the increase-prob-connections list
     var node = document.createElement("option");
-    var textnode = document.createTextNode(sensor.options[sensor.selectedIndex].text);
+    var textnode = document.createTextNode(sensor.options[sensor.selectedIndex].text + " -> " + action.options[action.selectedIndex].text);
     node.appendChild(textnode);
     document.getElementById("increase-prob-connections").appendChild(node);
 
-    // // Add item to the behaviour model
+    // adding to the decrease-prob-connections list
+    var node = document.createElement("option");
+    var textnode = document.createTextNode(sensor.options[sensor.selectedIndex].text + " -> " + action.options[action.selectedIndex].text);
+    node.appendChild(textnode);
+    document.getElementById("decrease-prob-connections").appendChild(node);
+
+    // // ToDo: Add item to the behaviour model
 
     // obtain new sensor parameters (id, type, probs, actions)
-    let newId = sensors.length;     // one greater than last id
-    let newType = sensor.options[sensor.selectedIndex].text.toUpperCase();
-    let newProbs = [1];  // loop back to the initial action
-    let newActions; // to be filled below
+    // let newId = sensors.length;     // one greater than last id
+    // let newType = sensor.options[sensor.selectedIndex].text.toUpperCase();
+    // let newProbs = [1];  // loop back to the initial action
+    // let newActions; // to be filled below
 
-    // add the new sensor to the action
-    let actionName = action.options[action.selectedIndex].text.toLowerCase();
-    if(actionName == "move"){
-        actions.move.sensors.push(newId);
-        newActions = [actions.move];    // loop back to the initial action
-        console.log(actions.move);
-    } else if(actionName == "extend"){
-        newActions = [actions.extend];    // loop back to the initial action
-        console.log(actions.extend);
-    } else if(actionName == "climb on"){
-        newActions = [actions.climb_on];    // loop back to the initial action
-        console.log(actions.climb_on);
-    } else if(actionName == "climb off"){
-        newActions = [actions.climb_off];    // loop back to the initial action
-        console.log(actions.climb_off);
-    } else {console.log("ERROR");}
+    // // add the new sensor to the action
+    // let actionName = action.options[action.selectedIndex].text.toLowerCase();
+    // if(actionName == "move"){
+    //     actions.move.sensors.push(newId);
+    //     newActions = [actions.move];    // loop back to the initial action
+    //     console.log(actions.move);
+    // } else if(actionName == "extend"){
+    //     newActions = [actions.extend];    // loop back to the initial action
+    //     console.log(actions.extend);
+    // } else if(actionName == "climb on"){
+    //     newActions = [actions.climb_on];    // loop back to the initial action
+    //     console.log(actions.climb_on);
+    // } else if(actionName == "climb off"){
+    //     newActions = [actions.climb_off];    // loop back to the initial action
+    //     console.log(actions.climb_off);
+    // } else {console.log("ERROR");}
 
-    // input into new variable -> into sensors
-    let newSensor = {id: newId, type: newType, probs: newProbs, actions: newActions};
-    sensors.push(newSensor);
-    console.log(sensors);
+    // // input into new variable -> into sensors
+    // let newSensor = {id: newId, type: newType, probs: newProbs, actions: newActions};
+    // sensors.push(newSensor);
+    // console.log(sensors);
 
 }
 
