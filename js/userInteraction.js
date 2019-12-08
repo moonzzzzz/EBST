@@ -1,20 +1,33 @@
 // // Update Behaviour Model
 
 function addAction() {
+    // get action list
     let action = document.getElementById("add-action-actions");
     mainAddAction(action);
 }
 
 function addSensor() {
+    // get action and sensor lists
     let action = document.getElementById("add-sensor-actions");
     let sensor = document.getElementById("add-sensor-sensors");
     mainAddSensor(action, sensor);
 }
 
 function connectSensor() {
+    // get sensor and action list
     let sensor = document.getElementById("connect-sensor-sensors"); // must be connection
     let action = document.getElementById("connect-sensor-actions");
     mainConnectSensor(sensor, action);
+}
+
+function increaseProb() {
+    // get increase prob list
+    
+}
+
+function decreaseProb() {
+    // get decrease prob list
+
 }
 
 function mainAddAction(action) {
@@ -106,6 +119,8 @@ function mainConnectSensor(sensor, action) {
     sensors[sensorId].actions.push(newActions);
     console.log(sensors[sensorId]);
 }
+
+
 
 function findSensorId(sensorName){
     for(let i = 0; i < sensors.length; i++){
