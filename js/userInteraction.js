@@ -93,34 +93,38 @@ function mainConnectSensor(sensor, action) {
 
     // // ToDo: Add item to the behaviour model
 
-    // obtain new sensor parameters (id, type, probs, actions)
-    // let newId = sensors.length;     // one greater than last id
-    // let newType = sensor.options[sensor.selectedIndex].text.toUpperCase();
-    // let newProbs = [1];  // loop back to the initial action
-    // let newActions; // to be filled below
+    // find sensor id
+    let newType = sensor.options[sensor.selectedIndex].text.toUpperCase();
+    let sensorId = findSensorId(newType);
 
-    // // add the new sensor to the action
-    // let actionName = action.options[action.selectedIndex].text.toLowerCase();
-    // if(actionName == "move"){
-    //     actions.move.sensors.push(newId);
-    //     newActions = [actions.move];    // loop back to the initial action
-    //     console.log(actions.move);
-    // } else if(actionName == "extend"){
-    //     newActions = [actions.extend];    // loop back to the initial action
-    //     console.log(actions.extend);
-    // } else if(actionName == "climb on"){
-    //     newActions = [actions.climb_on];    // loop back to the initial action
-    //     console.log(actions.climb_on);
-    // } else if(actionName == "climb off"){
-    //     newActions = [actions.climb_off];    // loop back to the initial action
-    //     console.log(actions.climb_off);
-    // } else {console.log("ERROR");}
+    // actions: link back to the newly input action
+    let actionName = action.options[action.selectedIndex].text.toLowerCase();
+    newActions = findActionFromName(actionName);
 
-    // // input into new variable -> into sensors
-    // let newSensor = {id: newId, type: newType, probs: newProbs, actions: newActions};
-    // sensors.push(newSensor);
-    // console.log(sensors);
+    // input new action and probability
+    sensors[sensorId].probs.push(0);
+    sensors[sensorId].actions.push(newActions);
+    console.log(sensors[sensorId]);
+}
 
+function findSensorId(sensorName){
+    for(let i = 0; i < sensors.length; i++){
+        if(sensorName == sensors[i].type){return i;}
+    }
+}
+
+function findActionFromName(actionName){
+    if(actionName == "move"){
+        newActions = [actions.move];    // loop back to the initial action
+    } else if(actionName == "extend"){
+        newActions = [actions.extend];    // loop back to the initial action
+    } else if(actionName == "climb on"){
+        newActions = [actions.climb_on];    // loop back to the initial action
+    } else if(actionName == "climb off"){
+        newActions = [actions.climb_off];    // loop back to the initial action
+    } else {console.log("ERROR");}
+
+    return newActions;
 }
 
 function updateBehaviourModel() {
